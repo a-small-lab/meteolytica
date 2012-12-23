@@ -7,6 +7,8 @@
 #  distributions of electric power load. To be used as the basis for a planned
 #  demo in the form of a Shiny-based web app. 
 
+# New comment to test git syncing. 
+
 
 # Initialize the workspace ------------------------------------------------
 library(forecast)
