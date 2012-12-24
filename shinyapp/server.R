@@ -25,8 +25,9 @@ shinyServer(function(input, output) {
   # Generate a plot of the requested variable against mpg and only 
   # include outliers if requested
   output$mpgPlot <- reactivePlot(function() {
-    boxplot(as.formula(formulaText()), 
-            data = mpgData,
-            outline = input$outliers)
+      hist(rnorm(100 + 100*input$outliers))
+#     boxplot(as.formula(formulaText()), 
+#             data = mpgData,
+#             outline = input$outliers)
   })
 })

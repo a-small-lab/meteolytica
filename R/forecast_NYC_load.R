@@ -10,27 +10,30 @@
 
 
 # Initialize the workspace ------------------------------------------------
+#  Program assumes current working directory is "/Path/from/root/meteolytica".
+#  If it isn't, use: setwd("/Path/from/root/meteolytica")
+
 library(forecast)
 
-
-ProjectID = c("User Name","Load","NYC-temp+load-hourly-feb2005--may2008.csv",
+ProjectID = c("(Name of user)","Load","NYC-temp+load-hourly-feb2005--may2008.csv",
               "Forecasting electric power load in New York City")
-UserName =     ProjectID[1]
-ProjectName =  ProjectID[2]
-UserDateFile = ProjectID[3]
+UserName =          ProjectID[1]
+ProjectName =       ProjectID[2]
+UserDataCSVFile =   ProjectID[3]
 ProjectDescription = ProjectID[4]
 
-#  Identify files containing the load data
-UserDataDirectory = paste("./Data/Outcomes",ProjectName, sep="/")
-UserDateFile = paste(UserDataDirectory,UserDateFile,sep="/")
+# Retrieve and transform user's outcomes data -----------------------------------
 
-# Retrieve and transform data ------------------------------------------------------
+#  Identify files containing the load data.
+UserDataDirectory = paste("./Data/Outcomes",ProjectName, sep="/")
+UserDataCSVFile = paste(UserDataDirectory,UserDataCSVFile,sep="/")
 
 #  Read user's outcomes data from file, creating a data frame
-NYC.temp.load <- read.table(UserDateFile, header = TRUE, sep = ",")
+NYC.temp.load <- read.table(UserDataCSVFile, header = TRUE, sep = ",")
 
 # Clean outcomes series and convert it to a time series object
-source("outcomes.df2ts.R")    
+
+source("R/outcomes.df2ts.R")    
 NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
 
 
