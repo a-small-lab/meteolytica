@@ -44,7 +44,7 @@ system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 plot(NYC.load.forecast, main="Forecast of NYC load (MW)", xlim=c(170,175))
 
 
-############################
+#############  STOP HERE FOR NOW -- ONLY NEED UP TO HERE FOR DEMO  #############
 
 #  Create a second load forecasting model using temperature as a regressor
 #  First convert both load and temp series into a ts object
