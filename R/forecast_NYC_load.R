@@ -25,17 +25,25 @@ ProjectDescription = ProjectID[4]
 # Retrieve and transform user's outcomes data -----------------------------------
 
 #  Identify files containing the load data.
-UserDataDirectory = paste("./Data/Outcomes",ProjectName, sep="/")
-UserDataCSVFile = paste(UserDataDirectory,UserDataCSVFile,sep="/")
+# UserDataDirectory = paste("./Data/Outcomes",ProjectName, sep="/")
+# UserDataCSVFile = paste(UserDataDirectory,UserDataCSVFile,sep="/")
+
+PathFromRoot <- c("/Users/arthursmalliii/Documents/Google\ Drive/meteolytica")
+UserDataDirectory <- paste("Data/Outcomes",ProjectName, sep="/")
+outcomesDataCSVFile <- paste(PathFromRoot,UserDataDirectory,UserDataCSVFile,sep="/")
 
 #  Read user's outcomes data from file, creating a data frame
-NYC.temp.load <- read.table(UserDataCSVFile, header = TRUE, sep = ",")
+NYC.temp.load <- read.table(outcomesDataCSVFile, header = TRUE, sep = ",")
 
 # Clean outcomes series and convert it to a time series object
 
 source("R/outcomes.df2ts.R")    
 NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
+summary(NYC.load.ts)
+str(NYC.load.ts)
 
+# For development only: Truncate time series, to make the code run faster.
+NYC.load.ts <- window(NYC.load.ts, start=165)
 
 # Create forecasting models -----------------------------------------------
 
