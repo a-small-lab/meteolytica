@@ -8,7 +8,7 @@
 
 outcomes.df2ts <- function(outcomes.df){
      #  Perform transformations on data frame user data:
-     outcomes.df <- read.table(outcomes.df, header = TRUE, sep = ",")
+#     outcomes.df <- read.table(outcomes.df, header = TRUE, sep = ",")
      
      #     Convert text dates into R's internal "Date" class
      outcomes.df$Date <- as.Date(outcomes.df$Date,'%m/%d/%Y')
