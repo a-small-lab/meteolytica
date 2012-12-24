@@ -1,28 +1,31 @@
 #  File forecast_NYC_load.R.
 #  Copyright 2012 by Venti Risk Management.
-#  Created by A.A. Small, III, November, 2012
+#  Created by A.A. Small, November, 2012
 #  
 #  A program to estimate the structural relationships between temperature and
 #  electric power load for a single region, and to generate preditive
-#  distributions of electric power load. To be used as the basis for a planned
-#  demo in the form of a Shiny-based web app. 
-
-# New comment to test git syncing. 
+#  distributions of electric power load. 
+#
+#  To be used as the basis for a planned demo web app. 
 
 
 # Initialize the workspace ------------------------------------------------
 library(forecast)
 
-ProjectID = c("arthursmalliii","Power_load","NYC-temp+load-hourly-feb2005--may2008.csv")
+
+ProjectID = c("User Name","Load","NYC-temp+load-hourly-feb2005--may2008.csv",
+              "Forecasting electric power load in New York City")
 UserName =     ProjectID[1]
 ProjectName =  ProjectID[2]
 UserDateFile = ProjectID[3]
-#  Identify files containing the raw data
-UserDataDirectory = paste("/Users",UserName,"Dropbox/Research_Projects/Electricity-Load-Forecasting/Data", sep="/")
+ProjectDescription = ProjectID[4]
+
+#  Identify files containing the load data
+UserDataDirectory = paste("./Data/Outcomes",ProjectName, sep="/")
 UserDateFile = paste(UserDataDirectory,UserDateFile,sep="/")
 
-
 # Retrieve and transform data ------------------------------------------------------
+
 NYC.temp.load <- read.table(UserDateFile, header = TRUE, sep = ",")
 
 #	Convert text dates into R's internal "Date" class
@@ -30,31 +33,36 @@ NYC.temp.load$Date <- as.Date(NYC.temp.load$Date,'%m/%d/%Y')
 
 #  Check for missing values in the load series
 NYC.temp.load[is.na(NYC.temp.load$Load.MW), ]
+
 #  Perform ad-hoc plugs of missing values
 NYC.temp.load$Load.MW[6727] <- (NYC.temp.load$Load.MW[6728]+NYC.temp.load$Load.MW[6728])/2
 NYC.temp.load$Load.MW[6727]
 NYC.temp.load$Load.MW[14992] <- (NYC.temp.load$Load.MW[14993]+NYC.temp.load$Load.MW[14991])/2
 NYC.temp.load$Load.MW[14992]
+
 #  Check for impossibly low values in the load series
 NYC.temp.load[NYC.temp.load$Load.MW < 1000, ]
-
 
 #  Check for missing values in the temperature series
 NYC.temp.load[is.na(NYC.temp.load$Temp.Faren), ]
 #  None!
 
-
 #  Convert NYC load series into a time series object
 NYC.load.ts <- ts(NYC.temp.load$Load.MW, 
 #                  start     = 2005+1/12,
                   frequency = 7*24)
-NYC.load.ts[1:100]
-NYC.temp.load$Date[1]
-plot(NYC.load.ts)
-NYC.load.ts[is.na(NYC.load.ts)]
 
-#  Create a load forecasting model using only the load time series
+# NYC.temp.load$Date[1]
+# plot(NYC.load.ts)
+# NYC.load.ts[is.na(NYC.load.ts)]
+
+
+# Create forecasting models -----------------------------------------------
+
+#  Create a load forecasting model using the forecast() package, 
+#  based only the load time series
 system.time(NYC.load.forecast <- forecast(NYC.load.ts))
+
 #  Plot forecast
 plot(NYC.load.forecast, main="Forecast of NYC load (MW)", xlim=c(170,175))
 
@@ -80,18 +88,16 @@ load.forecast2 <- forecast(load, xreg = temp)
 fit <- stl(NYC.load.ts[!is.na(NYC.load.ts)])
 plot(fit)
 
-
-
 #  Now try to add temperature
 temp <- ts(NYC.temp.load$Temp.Faren,
            start     = 2005+1/12,
            frequency = 8760)
-temp           
-NYC.load.forecast.arima <- Arima(NYC.load.ts[!is.na(NYC.load.ts)], xreg=temp[!is.na(NYC.load.ts)]) 
+NYC.load.forecast.arima <- Arima(NYC.load.ts[!is.na(NYC.load.ts)], 
+                                 xreg=temp[!is.na(NYC.load.ts)]) 
 plot(NYC.load.forecast.arima)
 
-nyc.data.ts <- ts(c(temp,load))
-rm(nyc.data.ts)
+# nyc.data.ts <- ts(c(temp,load))
+# rm(nyc.data.ts)
 
 ## NYC.load.forecast.truncated <- window(NYC.load.forecast, start=2008)
 ## plot(NYC.load.ts.truncated)
