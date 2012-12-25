@@ -7,19 +7,14 @@ library(shiny)
 shinyUI(pageWithSidebar(
   
   # Print project title at top of page
-  #    Title <- textOutput("projectTitle")
      headerPanel(textOutput("projectTitle")),
   
-  # Sidebar with controls to select the variable to plot against mpg
-  # and to specify whether outliers should be included
+  # Sidebar with control to select the number of forecast periods to display
   sidebarPanel(
-    selectInput("variable", "Variable:",
-                list("Cylinders" = "cyl", 
-                     "Transmission" = "am", 
-                     "Gears" = "gear")),
-    
-    checkboxInput("outliers", "Show outliers", FALSE)
-  ),
+    sliderInput(inputId = "display_periods",
+                label = "Number of forecast weeks to display:",
+                min = 0.2, max = 2, value = 1, step = 0.2)
+      ),
   
   # Show the caption and plot of the requested variable against mpg
   mainPanel(

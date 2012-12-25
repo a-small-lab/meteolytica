@@ -53,29 +53,35 @@ shinyServer(function(input, output) {
   
   # Compute the forumla text in a reactive function since it is 
   # shared by the output$caption and output$mpgPlot functions
-  formulaText <- reactive(function() {
-    paste("mpg ~", input$variable)
+  captionText <- reactive(function() {
+    c("Units of MWh per hour")
+       #paste("mpg ~", input$variable)
   })
   
-  # Return the formula text for printing as a caption
+  # Return the text for the main title of the page
+  output$projectTitle  <- reactiveText(function() {
+       ProjectTitle
+  })
+  
+  # Return the text for the caption
   output$caption <- reactiveText(function() {
-    formulaText()
+    captionText()
   })
   
   # Generate a plot of the requested variable against mpg and only 
   # include outliers if requested
   output$mpgPlot <- reactivePlot(function() {
-       plot(NYC.load.forecast, main="Forecast of NYC load (MW)", xlim=c(170,175))
+       xlim <- c(170,172.8+input$display_periods)
+       veritcalLabel <- c("MW")
+       horizLabel <- c("Weeks")
+       plot(NYC.load.forecast, 
+            main="Forecast of NYC load (MW)", 
+            xlim=xlim)
 #      hist(rnorm(100 + 100*input$outliers))
 #     boxplot(as.formula(formulaText()), 
 #             data = mpgData,
 #             outline = input$outliers)
   })
 
-#  output$projectTitle <- ProjectTitle
-  # Return the text for the main title of the page
-  output$projectTitle  <- reactiveText(function() {
-       ProjectTitle
-  })
-  
+
 })
