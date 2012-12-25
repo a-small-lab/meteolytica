@@ -1,9 +1,9 @@
-#  Learning how to use the shiny package in R.
-#  First app.
+#  File meteolyticaDemo/ui.R
+#  User interface module for Meteolytica web app demo.
+#  Created by A.A. Small 24 Dec 2012 based on Shiny's Mpg application.
 
 library(shiny)
 
-# Define UI for miles per gallon application
 shinyUI(pageWithSidebar(
   
   # Print project title at top of page
@@ -16,10 +16,9 @@ shinyUI(pageWithSidebar(
                 min = 0.2, max = 2, value = 1, step = 0.2)
       ),
   
-  # Show the caption and plot of the requested variable against mpg
+  # Show the caption and plot of the recent history plus short-range forecast
   mainPanel(
-    h3(textOutput("caption")),
-    
-    plotOutput("mpgPlot")
+    plotOutput("forecastPlot")
+    #    h3(textOutput("caption")),   
   )
 ))

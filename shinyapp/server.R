@@ -1,6 +1,8 @@
-# Learning how to use the shiny package in R. First app.
+#  File meteolyticaDemo/server.R
+#  Server logic module for Meteolytica web app demo.
+#  Created by A.A. Small 24 Dec 2012 based on Shiny's Mpg application.
+
 library(shiny)
-library(datasets)
 library(forecast)
 
 ProjectID <- c("(Name of user)","Load","NYC-temp+load-hourly-feb2005--may2008.csv",
@@ -38,50 +40,36 @@ system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 #  Plot forecast
 # plot(NYC.load.forecast, main="Forecast of NYC load (MW)", xlim=c(170,175))
 
-
-
 # ShinyServer Function ----------------------------------------------------
 
-# We tweak the "am" field to have nicer factor labels. Since this doesn't
-# rely on any user inputs we can do this once at startup and then use the
-# value throughout the lifetime of the application
-mpgData <- mtcars
-mpgData$am <- factor(mpgData$am, labels = c("Automatic", "Manual"))
-
-# Define server logic required to plot various variables against mpg
+# Define server logic required to plot forecast
 shinyServer(function(input, output) {
-  
-  # Compute the forumla text in a reactive function since it is 
-  # shared by the output$caption and output$mpgPlot functions
-  captionText <- reactive(function() {
-    c("Units of MWh per hour")
-       #paste("mpg ~", input$variable)
-  })
   
   # Return the text for the main title of the page
   output$projectTitle  <- reactiveText(function() {
        ProjectTitle
   })
   
-  # Return the text for the caption
-  output$caption <- reactiveText(function() {
-    captionText()
-  })
-  
-  # Generate a plot of the requested variable against mpg and only 
-  # include outliers if requested
-  output$mpgPlot <- reactivePlot(function() {
+  # Generate a plot of the forecast
+  output$forecastPlot <- reactivePlot(function() {
        xlim <- c(170,172.8+input$display_periods)
        veritcalLabel <- c("MW")
        horizLabel <- c("Weeks")
        plot(NYC.load.forecast, 
             main="Forecast of NYC load (MW)", 
             xlim=xlim)
-#      hist(rnorm(100 + 100*input$outliers))
-#     boxplot(as.formula(formulaText()), 
-#             data = mpgData,
-#             outline = input$outliers)
   })
 
-
 })
+
+
+# Deprecated code (you may ignore) ----------------------------------------
+
+#   captionText <- reactive(function() {
+#     c("Units of MWh per hour")
+#   })
+#   
+#   # Return the text for the caption
+#   output$caption <- reactiveText(function() {
+#     captionText()
+#   })
