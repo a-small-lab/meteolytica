@@ -10,7 +10,7 @@ ProjectID <- c("(Name of user)","Load","NYC-temp+load-hourly-feb2005--may2008.cs
 UserName <-          ProjectID[1]
 ProjectName <-       ProjectID[2]
 UserDataCSVFile <-   ProjectID[3]
-ProjectTitle <-      ProjectID[4]
+projectTitle <-      ProjectID[4]
 
 # Retrieve and transform user's outcomes data -----------------------------------
 
@@ -23,7 +23,6 @@ outcomesDataCSVFile <- paste(PathFromRoot,UserDataDirectory,UserDataCSVFile,sep=
 NYC.temp.load <- read.table(outcomesDataCSVFile, header = TRUE, sep = ",")
 
 # Clean outcomes series and convert it to a time series object
-
 funk <- paste(PathFromRoot,"R/outcomes.df2ts.R",sep="/")
 source(funk)    
 NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
@@ -31,26 +30,30 @@ NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
 # Create a much shorter time series, to make the computations run faster during development.
 NYC.load.ts <- window(NYC.load.ts, start=168)
 
-# Create forecasting models -----------------------------------------------
+# CREATE FORECASTING MODEL -----------------------------------------------
 
 #  Create a load forecasting model using the forecast() package, 
 #  based only the load time series
 system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 
-#  Plot forecast
-# plot(NYC.load.forecast, main="Forecast of NYC load (MW)", xlim=c(170,175))
 
-# ShinyServer Function ----------------------------------------------------
+# DEFINE SHINY SERVER FUNCTION ----------------------------------------------------
 
 # Define server logic required to plot forecast
 shinyServer(function(input, output) {
   
+     outcomes.ts <- NYC.load.ts
+     
   # Return the text for the main title of the page
   output$projectTitle  <- reactiveText(function() {
-       ProjectTitle
+       projectTitle
   })
   
-  # Generate a plot of the forecast
+  output$outcomesSummary <- reactivePrint(function() {
+       summary(outcomes.ts)
+  })
+  
+  # Generate a plot of the tail of obs + forecast
   output$forecastPlot <- reactivePlot(function() {
        xlim <- c(170,172.8+input$display_periods)
        veritcalLabel <- c("MW")
@@ -59,12 +62,25 @@ shinyServer(function(input, output) {
             main="Forecast of NYC load (MW)", 
             xlim=xlim)
   })
+     
+  # Display the first "n" observations in a table
+      output$view <- reactiveTable(function() {
+           numberOfRows <- input$numberOfObsToDisplay
+           tableData <- tail(as.data.frame(NYC.load.ts), n=numberOfRows)
+           t(tableData)
+           })
 
 })
 
 
 # Deprecated code (you may ignore) ----------------------------------------
-
+# library(datasets)
+# str(rock)
+# str(cars)
+# str(pressure)
+# NYC.load.df <- as.data.frame(NYC.load.ts)
+# str(NYC.load.df)
+# xtable(NYC.load.df)
 #   captionText <- reactive(function() {
 #     c("Units of MWh per hour")
 #   })

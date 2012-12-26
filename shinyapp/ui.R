@@ -11,14 +11,21 @@ shinyUI(pageWithSidebar(
   
   # Sidebar with control to select the number of forecast periods to display
   sidebarPanel(
-    sliderInput(inputId = "display_periods",
-                label = "Number of forecast weeks to display:",
+     numericInput("numberOfObsToDisplay", "Number of observations to display in table:", 10),
+     
+     sliderInput(inputId = "display_periods",
+                label = "Number of forecast weeks to display in plot:",
                 min = 0.2, max = 2, value = 1, step = 0.2)
+    
       ),
   
   # Show the caption and plot of the recent history plus short-range forecast
   mainPanel(
-    plotOutput("forecastPlot")
+    verbatimTextOutput("outcomesSummary"),
+
+    tableOutput("view"),
+
+    plotOutput("forecastPlot")   
     #    h3(textOutput("caption")),   
   )
 ))
