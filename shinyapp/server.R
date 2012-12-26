@@ -35,6 +35,8 @@ NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
 
 # Create a much shorter time series, to make the computations run faster during development.
 NYC.load.ts <- window(NYC.load.ts, start=168)
+NYC.load.df <- as.data.frame(NYC.load.ts)
+
 
 # CREATE FORECASTING MODEL -----------------------------------------------
 
@@ -48,24 +50,36 @@ system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 # Define server logic required to plot forecast
 shinyServer(function(input, output) {
   
+#      usersData <- reactive(function() {
+#           read.csv(input$file[1]$datapath)
+#      })
      
-     out <- reactive (function(){
+     #  Read user's outcomes data from UI, then convert it from CSV to data frame.
+     #  If user doesn't upload a file, default to prepared CSV file.
+     outcomesDf <- reactive (function(){
           if(is.null(input$file)) {
-               infile <- NYC.load.ts
+               infileDf <- NYC.load.ts # read.csv(outcomesDataCSVFile, header = TRUE)
           } else {
-               infile <- NYC.load.ts
+               infileDf <- read.csv(as.character(input$file[1]), header = TRUE)
           }
+          return(infileDf)
      })
      
-     outcomes.ts <- NYC.load.ts
      
   # Return the text for the main title of the page
   output$projectTitle  <- reactiveText(function() {
        projectTitle
   })
   
-  output$outcomesSummary <- reactivePrint(function() {
-       summary(outcomes.ts)
+     # Display the first "n" rows of the users data in a table
+     output$tableOfUsersData <- reactiveTable(function() {
+          numberOfRows <- input$numberOfObsToDisplay
+          headOfData <- head(as.data.frame(outcomesDf()), n=numberOfRows)
+          return(headOfData)
+     })
+     
+     output$outcomesSummary <- reactivePrint(function() {
+       summary(outcomesDf())
   })
   
   # Generate a plot of the tail of obs + forecast
@@ -93,7 +107,6 @@ shinyServer(function(input, output) {
 # str(rock)
 # str(cars)
 # str(pressure)
-# NYC.load.df <- as.data.frame(NYC.load.ts)
 # str(NYC.load.df)
 # xtable(NYC.load.df)
 #   captionText <- reactive(function() {
