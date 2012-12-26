@@ -5,8 +5,12 @@
 library(shiny)
 library(forecast)
 
-ProjectID <- c("(Name of user)","Load","NYC-temp+load-hourly-feb2005--may2008.csv",
-              "Forecasting electric power load in New York City")
+ProjectID <- c("(Name of user)",
+               "Load",
+               "NYC-temp+load-hourly-feb2005--may2008.csv",
+               "Forecasting electric power load in New York City"
+               )
+
 UserName <-          ProjectID[1]
 ProjectName <-       ProjectID[2]
 UserDataCSVFile <-   ProjectID[3]
@@ -15,15 +19,17 @@ projectTitle <-      ProjectID[4]
 # Retrieve and transform user's outcomes data -----------------------------------
 
 #  Identify files containing the load data.
-PathFromRoot <- c("/Users/arthursmalliii/Documents/Google\ Drive/meteolytica")
-UserDataDirectory <- paste("Data/Outcomes",ProjectName, sep="/")
-outcomesDataCSVFile <- paste(PathFromRoot,UserDataDirectory,UserDataCSVFile,sep="/")
+# PathFromRoot <- c("/Users/arthursmalliii/Documents/Google\ Drive/meteolytica")
+# UserDataDirectory <- paste("Data/Outcomes",ProjectName, sep="/")
+# outcomesDataCSVFile <- paste(PathFromRoot,UserDataDirectory,UserDataCSVFile,sep="/")
+outcomesDataCSVFile <- UserDataCSVFile
 
 #  Read user's outcomes data from file, creating a data frame
 NYC.temp.load <- read.table(outcomesDataCSVFile, header = TRUE, sep = ",")
 
 # Clean outcomes series and convert it to a time series object
-funk <- paste(PathFromRoot,"R/outcomes.df2ts.R",sep="/")
+# funk <- paste(PathFromRoot,"R/outcomes.df2ts.R",sep="/")
+funk <- c("outcomes.df2ts.R")
 source(funk)    
 NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
 
@@ -42,6 +48,15 @@ system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 # Define server logic required to plot forecast
 shinyServer(function(input, output) {
   
+     
+     out <- reactive (function(){
+          if(is.null(input$file)) {
+               infile <- NYC.load.ts
+          } else {
+               infile <- NYC.load.ts
+          }
+     })
+     
      outcomes.ts <- NYC.load.ts
      
   # Return the text for the main title of the page
