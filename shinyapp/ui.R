@@ -15,6 +15,12 @@ shinyUI(pageWithSidebar(
   # Sidebar with control to select the number of forecast periods to display
   sidebarPanel(       
        conditionalPanel(
+            condition = "input.openTab == 'welcome' ",
+            helpText("Click on the tabs, proceeding from left to right ",
+                     "to see context-specific instructions.")
+            ),
+       
+       conditionalPanel(
             condition = "input.openTab == 'upload' ",
             fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
             ),
@@ -50,12 +56,18 @@ shinyUI(pageWithSidebar(
      mainPanel(
           tabsetPanel(id="openTab",
                tabPanel("Welcome", value='welcome',
-                        helpText("This web app is designed to generate forecasting ",
-                                 "models automatically, based on historical data ",
+                        helpText("Meteolytica is a web app designed to generate forecasting ",
+                                 "models automatically based on historical data ",
                                  "supplied by the user.",
                                  helpText(""),
-                                 "Click on the tabs, proceeding from left to right ",
-                                 "to see context-specific instructions."
+                                 "The tabs are organized from left to right to reflect the", 
+                                 "user's workflow. Click on the tabs to see context-specific instructions.",
+                                 helpText(""),
+                                 "CAUTIONARY NOTES: ",
+                                 "This is a very early and unstable version of the system. ",
+                                 "The file upload feature is not yet working on ",
+                                 "glimmer.rstudio.org: you must use one of the prepared data files. Performance may be slow.", 
+                                 "If the program crashes, simply reload the browser to restart."
                                  )
                         ),
                tabPanel("Describe your project", value='describe'),      
@@ -65,7 +77,7 @@ shinyUI(pageWithSidebar(
                # tabPanel("Summary of your data", verbatimTextOutput("outcomesSummary")), 
                tabPanel("Create forecasting model", value='create'), 
                tabPanel("View plot", value='plot', plotOutput("forecastPlot")), 
-               tabPanel("Model performance", value='performance', tableOutput("view"))
+               tabPanel("Evaluate performance", value='performance', tableOutput("view"))
           )
      )
      
