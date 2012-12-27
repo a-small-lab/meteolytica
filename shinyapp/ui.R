@@ -6,40 +6,66 @@
 library(shiny)
 
 shinyUI(pageWithSidebar(
-  
-  # Print project title at top of page
-  headerPanel(textOutput("projectTitle")),
+     
+     headerPanel("Meteolytica Demo"),
+   
+#      # Print project title at top of page
+#   headerPanel(textOutput("projectTitle")),
   
   # Sidebar with control to select the number of forecast periods to display
-  sidebarPanel(
+  sidebarPanel(       
+       conditionalPanel(
+            condition = "input.openTab == 'upload' ",
+            fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
+            ),
      
-       fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL),
-       
-       numericInput(inputId = "trainingPeriods",
+       conditionalPanel(
+            condition = "input.openTab == 'create' ",
+            numericInput(inputId = "trainingPeriods",
                     label = "Number of weeks of data to use for training",
-                    20),
-       
-       numericInput(inputId = "testingPeriods",
+                    3),
+            numericInput(inputId = "testingPeriods",
                     label = "Number of weeks of data to use for testing",
-                    2),
+                    0)
+            ),
+       
+       conditionalPanel(
+            condition = "input.openTab == 'plot' ",
+            sliderInput(inputId = "display_periods",
+                        label = "Number of forecast weeks to display in plot:",
+                        min = 0.2, max = 2, step = 0.2, value = 1)            
+            ),
+       
+       conditionalPanel(
+            condition = "input.openTab == 'performance' ",
+            numericInput("numberOfObsToDisplay", 
+                         "Number of observations to display in table:", 
+                         10)            
+            )
 
-       sliderInput(inputId = "display_periods",
-                   label = "Number of forecast weeks to display in plot:",
-                   min = 0.2, max = 2, value = 1, step = 0.2),
-
-       numericInput("numberOfObsToDisplay", 
-                    "Number of observations to display in table:", 
-                    10)
-  ),
+       ),
   
      # Show a tabset that includes a plot, summary, and table view
      # of the data set and associated forecast
      mainPanel(
-          tabsetPanel(
-               tabPanel("Table of your historical data", tableOutput("tableOfUsersData")),
-               tabPanel("Summary of your data", verbatimTextOutput("outcomesSummary")), 
-               tabPanel("Forecast plot", plotOutput("forecastPlot")), 
-               tabPanel("Forecast diagnostics", tableOutput("view"))
+          tabsetPanel(id="openTab",
+               tabPanel("Welcome", value='welcome',
+                        helpText("This web app is designed to generate forecasting ",
+                                 "models automatically, based on historical data ",
+                                 "supplied by the user.",
+                                 helpText(""),
+                                 "Click on the tabs, proceeding from left to right ",
+                                 "to see context-specific instructions."
+                                 )
+                        ),
+               tabPanel("Describe your project", value='describe'),      
+               tabPanel("Upload your data", value='upload'), 
+               tabPanel("View your data", value='view', tableOutput("tableOfUsersData")),
+               # Need to figure out how to add multiple display elements to single tab panel
+               # tabPanel("Summary of your data", verbatimTextOutput("outcomesSummary")), 
+               tabPanel("Create forecasting model", value='create'), 
+               tabPanel("View plot", value='plot', plotOutput("forecastPlot")), 
+               tabPanel("Model performance", value='performance', tableOutput("view"))
           )
      )
      
