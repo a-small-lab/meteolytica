@@ -24,6 +24,11 @@ shinyUI(pageWithSidebar(
             condition = "input.openTab == 'upload' ",
             fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
             ),
+       
+       conditionalPanel(
+            condition = "input.openTab == 'view' ",
+            helpText("Your data.")
+            ),
      
        conditionalPanel(
             condition = "input.openTab == 'create' ",
@@ -71,8 +76,13 @@ shinyUI(pageWithSidebar(
                                  )
                         ),
                tabPanel("Describe your project", value='describe'),      
-               tabPanel("Upload your data", value='upload'), 
-               tabPanel("View your data", value='view', tableOutput("tableOfUsersData")),
+               tabPanel("Upload your data", value='upload'),
+                      
+               tabPanel("View your data", value='view', 
+                        verbatimTextOutput("outcomesSummary"),
+                        tableOutput("tableOfUsersData")
+                        ),
+                      
                # Need to figure out how to add multiple display elements to single tab panel
                # tabPanel("Summary of your data", verbatimTextOutput("outcomesSummary")), 
                tabPanel("Create forecasting model", value='create'), 
