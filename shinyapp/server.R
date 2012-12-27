@@ -67,10 +67,18 @@ shinyServer(function(input, output) {
   
      forecastModel <- reactive(function(){
           outcomesTs <- outcomes.df2ts(outcomesDf())
-          outcomesTs <- window(outcomesTs, start=168)
+          startOfTrainingWindow <- 172-input$trainingPeriods-input$testingPeriods
+          endOfTrainingWindow <- startOfTrainingWindow + input$trainingPeriods
+          outcomesTs <- window(outcomesTs, 
+                               start=startOfTrainingWindow, 
+                               end=endOfTrainingWindow)
           forecastModelOut <- forecast(outcomesTs)
           return(forecastModelOut)
-          # return(outcomesTs)
+     })
+     
+     forecastResiduals.ts <- reactive(function(){
+          Residuals <- forecastModel()$residuals
+          return(Residuals)
      })
      
      ### DEFINE OUTPUTS ###
@@ -96,15 +104,16 @@ shinyServer(function(input, output) {
           xlim <- c(170,172.8+input$display_periods)
           veritcalLabel <- c("MW")
           horizLabel <- c("Weeks")
-          plot(forecastModel(), 
+          plot(NYC.load.forecast,
+ #         plot(forecastModel(), 
             main="Forecast of NYC load (MW)", 
             xlim=xlim)
           })
      
-     # Display the first "n" observations in a table
+     # Display some of the forecast residuals in a table
      output$view <- reactiveTable(function() {
            numberOfRows <- input$numberOfObsToDisplay
-           tableData <- tail(as.data.frame(NYC.load.ts), n=numberOfRows)
+           tableData <- tail(as.data.frame(forecastResiduals.ts()), n=numberOfRows)
            t(tableData)
            })
 

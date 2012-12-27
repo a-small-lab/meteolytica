@@ -15,24 +15,31 @@ shinyUI(pageWithSidebar(
      
        fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL),
        
-       numericInput("numberOfObsToDisplay", 
-                    "Number of observations to display in table:", 
-                    10),
-     
+       numericInput(inputId = "trainingPeriods",
+                    label = "Number of weeks of data to use for training",
+                    20),
+       
+       numericInput(inputId = "testingPeriods",
+                    label = "Number of weeks of data to use for testing",
+                    2),
+
        sliderInput(inputId = "display_periods",
                    label = "Number of forecast weeks to display in plot:",
-                   min = 0.2, max = 2, value = 1, step = 0.2)
+                   min = 0.2, max = 2, value = 1, step = 0.2),
 
-       ),
+       numericInput("numberOfObsToDisplay", 
+                    "Number of observations to display in table:", 
+                    10)
+  ),
   
      # Show a tabset that includes a plot, summary, and table view
-     # of the generated distribution
+     # of the data set and associated forecast
      mainPanel(
           tabsetPanel(
-               tabPanel("Your historical data", tableOutput("tableOfUsersData")),
-               tabPanel("Summary", verbatimTextOutput("outcomesSummary")), 
-               tabPanel("Plot", plotOutput("forecastPlot")), 
-               tabPanel("Table", tableOutput("view"))
+               tabPanel("Table of your historical data", tableOutput("tableOfUsersData")),
+               tabPanel("Summary of your data", verbatimTextOutput("outcomesSummary")), 
+               tabPanel("Forecast plot", plotOutput("forecastPlot")), 
+               tabPanel("Forecast diagnostics", tableOutput("view"))
           )
      )
      
