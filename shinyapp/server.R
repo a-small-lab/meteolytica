@@ -49,51 +49,60 @@ system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 
 # Define server logic required to plot forecast
 shinyServer(function(input, output) {
-  
-#      usersData <- reactive(function() {
-#           read.csv(input$file[1]$datapath)
-#      })
-     
+       
+     ### DEFINE FUNCTIONS ###
+
      #  Read user's outcomes data from UI, then convert it from CSV to data frame.
-     #  If user doesn't upload a file, default to prepared CSV file.
+     #  If user doesn't upload a file, default to a prepared CSV file.
      outcomesDf <- reactive (function(){
           if(is.null(input$file)) {
-               infileDf <- NYC.load.ts # read.csv(outcomesDataCSVFile, header = TRUE)
+               infileCSV <- outcomesDataCSVFile
           } else {
-               infileDf <- read.csv(as.character(input$file[1]), header = TRUE)
+               infileCSV <- as.character(input$file[1])
           }
+          
+          infileDf <- read.csv(infileCSV, header = TRUE)
           return(infileDf)
      })
+  
+     forecastModel <- reactive(function(){
+          outcomesTs <- outcomes.df2ts(outcomesDf())
+          outcomesTs <- window(outcomesTs, start=168)
+          forecastModelOut <- forecast(outcomesTs)
+          return(forecastModelOut)
+          # return(outcomesTs)
+     })
      
+     ### DEFINE OUTPUTS ###
      
-  # Return the text for the main title of the page
-  output$projectTitle  <- reactiveText(function() {
-       projectTitle
-  })
+     # Return the text for the main title of the page
+     output$projectTitle  <- reactiveText(function() {
+          projectTitle
+          })
   
      # Display the first "n" rows of the users data in a table
      output$tableOfUsersData <- reactiveTable(function() {
           numberOfRows <- input$numberOfObsToDisplay
           headOfData <- head(as.data.frame(outcomesDf()), n=numberOfRows)
           return(headOfData)
-     })
+          })
      
      output$outcomesSummary <- reactivePrint(function() {
-       summary(outcomesDf())
-  })
+          summary(outcomesDf())
+          })
   
-  # Generate a plot of the tail of obs + forecast
-  output$forecastPlot <- reactivePlot(function() {
-       xlim <- c(170,172.8+input$display_periods)
-       veritcalLabel <- c("MW")
-       horizLabel <- c("Weeks")
-       plot(NYC.load.forecast, 
+     # Generate a plot of the tail of obs + forecast
+     output$forecastPlot <- reactivePlot(function() {
+          xlim <- c(170,172.8+input$display_periods)
+          veritcalLabel <- c("MW")
+          horizLabel <- c("Weeks")
+          plot(forecastModel(), 
             main="Forecast of NYC load (MW)", 
             xlim=xlim)
-  })
+          })
      
-  # Display the first "n" observations in a table
-      output$view <- reactiveTable(function() {
+     # Display the first "n" observations in a table
+     output$view <- reactiveTable(function() {
            numberOfRows <- input$numberOfObsToDisplay
            tableData <- tail(as.data.frame(NYC.load.ts), n=numberOfRows)
            t(tableData)
