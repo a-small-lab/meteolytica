@@ -5,6 +5,17 @@
 
 library(shiny)
 
+welcomeMessage <- helpText(
+"Meteolytica is a web app designed to generate forecasting models automatically based on historical data supplied by the user.",
+     helpText("\n"),
+"The tabs above are organized from left to right to reflect the user's workflow. Click on the tabs to see context-specific instructions.",
+     helpText("\n"),
+"CAUTIONARY NOTES: This is a very early and unstable version of the system. The file upload feature is not yet working on glimmer.rstudio.org: you must use one of the prepared data files.",
+"Performance may be slow: please be patient.",
+"If the program crashes, simply reload the browser to restart."
+)
+
+
 shinyUI(pageWithSidebar(
      
      headerPanel("Meteolytica Demo"),
@@ -60,22 +71,11 @@ shinyUI(pageWithSidebar(
      # of the data set and associated forecast
      mainPanel(
           tabsetPanel(id="openTab",
-               tabPanel("Welcome", value='welcome',
-                        helpText("Meteolytica is a web app designed to generate forecasting ",
-                                 "models automatically based on historical data ",
-                                 "supplied by the user.",
-                                 helpText(""),
-                                 "The tabs above are organized from left to right to reflect the", 
-                                 "user's workflow. Click on the tabs to see context-specific instructions.",
-                                 helpText(""),
-                                 "CAUTIONARY NOTES: ",
-                                 "This is a very early and unstable version of the system. ",
-                                 "The file upload feature is not yet working on ",
-                                 "glimmer.rstudio.org: you must use one of the prepared data files. Performance may be slow.", 
-                                 "If the program crashes, simply reload the browser to restart."
-                                 )
-                        ),
-               tabPanel("Describe your project", value='describe'),      
+
+               tabPanel("Welcome", value='welcome', welcomeMessage),
+               
+               tabPanel("Describe your project", value='describe'),
+                      
                tabPanel("Upload your data", value='upload'),
                       
                tabPanel("View your data", value='view', 
@@ -83,15 +83,17 @@ shinyUI(pageWithSidebar(
                         tableOutput("tableOfUsersData")
                         ),
                       
-               # Need to figure out how to add multiple display elements to single tab panel
-               # tabPanel("Summary of your data", verbatimTextOutput("outcomesSummary")), 
-               tabPanel("Create forecasting model", 
-                        value='create', 
+               tabPanel("Create forecasting model", value='create', 
                         plotOutput('decomposedTsPlot')
                         ), 
                       
-               tabPanel("View plot", value='plot', plotOutput("forecastPlot")), 
-               tabPanel("Evaluate performance", value='performance', tableOutput("view"))
+               tabPanel("View plot", value='plot', 
+                        plotOutput("forecastPlot")
+                        ), 
+               
+               tabPanel("Evaluate performance", value='performance', 
+                        tableOutput("view")
+                        )
           )
      )
      
