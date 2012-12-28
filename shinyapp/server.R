@@ -61,9 +61,9 @@ shinyServer(function(input, output) {
 #          #     Convert text dates into R's internal "Date" class
 #           outcomes.df$Date <- as.Date(outcomes.df$Date,'%m/%d/%Y')
 #           outcomes.df$Date[1]
-          outcomes.ts <- ts(outcomesDf()$Load.MW, 
-                            # start     = 2005+1/12,
-                            frequency = 7*24)
+          outcomes.ts <- ts(data = outcomesDf()[, 4], 
+                            start = 1,
+                            frequency = 24*7)
           return(outcomes.ts)    # Return time series object
      })
      
@@ -71,11 +71,11 @@ shinyServer(function(input, output) {
      #  based only on user-supplied data 
      forecastModel <- reactive(function(){
           outcomes.ts <- outcomesTs()
-          startOfTrainingWindow <- 172-input$trainingPeriods-input$testingPeriods
-          endOfTrainingWindow <- startOfTrainingWindow + input$trainingPeriods
+          #startOfTrainingWindow <-end(outcomes.ts)-input$trainingPeriods-input$testingPeriods
+          #endOfTrainingWindow <- startOfTrainingWindow + input$trainingPeriods
           outcomes.ts <- window(outcomes.ts, 
-                               start=startOfTrainingWindow, 
-                               end=endOfTrainingWindow)
+                               start=end(outcomes.ts)-24*7*input$trainingPeriods, 
+                               end=end(outcomes.ts))
           forecastModelOut <- forecast(outcomes.ts)
           return(forecastModelOut)
      })
@@ -105,13 +105,16 @@ shinyServer(function(input, output) {
   
      # Generate a plot of the tail of obs + forecast
      output$forecastPlot <- reactivePlot(function() {
-          xlim <- c(170,172.8+input$display_periods)
-          yLabel <- c("MW")
-          xLabel <- c("Weeks")
+          endPt <- end(outcomesTs())[1]+end(outcomesTs())[2]/168
+#          xlim <- c(endPt-input$trainingPeriods, endPt+input$display_periods)
+          xlim <- c(endPt-3, endPt+input$display_periods)
+          xlab <- c("Weeks")
+          ylab <- c("MW")
           plot(forecastModel(), 
-               xlab = xLabel, ylab = yLabel,
-               main="Forecast of NYC load (MW)", 
-               xlim=xlim)
+               xlab = xlab, ylab = ylab,
+               xlim=xlim,
+               main=as.character(endPt)
+               )
           })
      
      # Display some of the forecast residuals in a table
@@ -125,10 +128,6 @@ shinyServer(function(input, output) {
 
 
 # Deprecated code (you may ignore) ----------------------------------------
-# library(datasets)
-# str(rock)
-# str(cars)
-# str(pressure)
 #   captionText <- reactive(function() {
 #     c("Units of MWh per hour")
 #   })

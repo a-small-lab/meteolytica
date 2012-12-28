@@ -65,7 +65,7 @@ shinyUI(pageWithSidebar(
                                  "models automatically based on historical data ",
                                  "supplied by the user.",
                                  helpText(""),
-                                 "The tabs are organized from left to right to reflect the", 
+                                 "The tabs above are organized from left to right to reflect the", 
                                  "user's workflow. Click on the tabs to see context-specific instructions.",
                                  helpText(""),
                                  "CAUTIONARY NOTES: ",
@@ -98,8 +98,6 @@ shinyUI(pageWithSidebar(
 # Show the caption and plot of the recent history plus short-range forecast
 #   mainPanel(
 #     verbatimTextOutput("outcomesSummary"),
-# 
-#     tableOutput("view"),
 # 
 #     plotOutput("forecastPlot")   
 #     #    h3(textOutput("caption")),   
