@@ -85,7 +85,11 @@ shinyUI(pageWithSidebar(
                       
                # Need to figure out how to add multiple display elements to single tab panel
                # tabPanel("Summary of your data", verbatimTextOutput("outcomesSummary")), 
-               tabPanel("Create forecasting model", value='create'), 
+               tabPanel("Create forecasting model", 
+                        value='create', 
+                        plotOutput('decomposedTsPlot')
+                        ), 
+                      
                tabPanel("View plot", value='plot', plotOutput("forecastPlot")), 
                tabPanel("Evaluate performance", value='performance', tableOutput("view"))
           )

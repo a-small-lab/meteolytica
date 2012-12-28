@@ -66,6 +66,11 @@ shinyServer(function(input, output) {
                             frequency = 24*7)
           return(outcomes.ts)    # Return time series object
      })
+
+     #  Decompose the time series into trend, seasonal and random components
+     decomposeTs <- reactive(function(){
+          return(decompose(outcomesTs(), type='mult'))
+     })
      
      #  Use forecast() function to create a forecasting model 
      #  based only on user-supplied data 
@@ -102,7 +107,12 @@ shinyServer(function(input, output) {
      output$outcomesSummary <- reactivePrint(function() {
           summary(outcomesDf())
           })
-  
+     
+     #  Generate a plot of a decomposed time series
+     output$decomposedTsPlot <- reactivePlot(function(){
+          return(plot(decomposeTs()))          
+     })
+       
      # Generate a plot of the tail of obs + forecast
      output$forecastPlot <- reactivePlot(function() {
           endPt <- end(outcomesTs())[1]+end(outcomesTs())[2]/168
@@ -113,7 +123,7 @@ shinyServer(function(input, output) {
           plot(forecastModel(), 
                xlab = xlab, ylab = ylab,
                xlim=xlim,
-               main=as.character(endPt)
+               main=projectTitle
                )
           })
      
