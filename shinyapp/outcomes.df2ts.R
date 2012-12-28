@@ -18,9 +18,7 @@ outcomes.df2ts <- function(outcomes.df){
      
      #  Perform ad-hoc plugs of missing values
      outcomes.df$Load.MW[6727] <- (outcomes.df$Load.MW[6728]+outcomes.df$Load.MW[6728])/2
-     outcomes.df$Load.MW[6727]
      outcomes.df$Load.MW[14992] <- (outcomes.df$Load.MW[14993]+outcomes.df$Load.MW[14991])/2
-     outcomes.df$Load.MW[14992]
      
 #      #  Check for impossibly low values in the load series
 #      outcomes.df[outcomes.df$Load.MW < 1000, ]

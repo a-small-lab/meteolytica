@@ -27,22 +27,12 @@ outcomesDataCSVFile <- UserDataCSVFile
 #  Read user's outcomes data from file, creating a data frame
 NYC.temp.load <- read.table(outcomesDataCSVFile, header = TRUE, sep = ",")
 
-# Clean outcomes series and convert it to a time series object
-# funk <- paste(PathFromRoot,"R/outcomes.df2ts.R",sep="/")
-funk <- c("outcomes.df2ts.R")
+# cleanDf() is a utility that cleans data uploaded by user
+funk <- c("cleanDf.R")
 source(funk)    
-NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
-
-# Create a much shorter time series, to make the computations run faster during development.
-NYC.load.ts <- window(NYC.load.ts, start=168)
-NYC.load.df <- as.data.frame(NYC.load.ts)
 
 
 # CREATE FORECASTING MODEL -----------------------------------------------
-
-#  Create a load forecasting model using the forecast() package, 
-#  based only the load time series
-system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 
 
 # DEFINE SHINY SERVER FUNCTION ----------------------------------------------------
@@ -60,19 +50,33 @@ shinyServer(function(input, output) {
           } else {
                infileCSV <- as.character(input$file[1])
           }
-          
-          infileDf <- read.csv(infileCSV, header = TRUE)
-          return(infileDf)
+          infile.df <- read.csv(infileCSV, header = TRUE)
+          clean.df <- cleanDf(infile.df)
+          return(clean.df)
      })
-  
+     
+     # Convert outcomes data into a time series object, with parameters as
+     # specified by user.
+     outcomesTs <- reactive(function(){
+#          #     Convert text dates into R's internal "Date" class
+#           outcomes.df$Date <- as.Date(outcomes.df$Date,'%m/%d/%Y')
+#           outcomes.df$Date[1]
+          outcomes.ts <- ts(outcomesDf()$Load.MW, 
+                            # start     = 2005+1/12,
+                            frequency = 7*24)
+          return(outcomes.ts)    # Return time series object
+     })
+     
+     #  Use forecast() function to create a forecasting model 
+     #  based only on user-supplied data 
      forecastModel <- reactive(function(){
-          outcomesTs <- outcomes.df2ts(outcomesDf())
+          outcomes.ts <- outcomesTs()
           startOfTrainingWindow <- 172-input$trainingPeriods-input$testingPeriods
           endOfTrainingWindow <- startOfTrainingWindow + input$trainingPeriods
-          outcomesTs <- window(outcomesTs, 
+          outcomes.ts <- window(outcomes.ts, 
                                start=startOfTrainingWindow, 
                                end=endOfTrainingWindow)
-          forecastModelOut <- forecast(outcomesTs)
+          forecastModelOut <- forecast(outcomes.ts)
           return(forecastModelOut)
      })
      
@@ -102,12 +106,12 @@ shinyServer(function(input, output) {
      # Generate a plot of the tail of obs + forecast
      output$forecastPlot <- reactivePlot(function() {
           xlim <- c(170,172.8+input$display_periods)
-          veritcalLabel <- c("MW")
-          horizLabel <- c("Weeks")
-          plot(NYC.load.forecast,
- #         plot(forecastModel(), 
-            main="Forecast of NYC load (MW)", 
-            xlim=xlim)
+          yLabel <- c("MW")
+          xLabel <- c("Weeks")
+          plot(forecastModel(), 
+               xlab = xLabel, ylab = yLabel,
+               main="Forecast of NYC load (MW)", 
+               xlim=xlim)
           })
      
      # Display some of the forecast residuals in a table
@@ -125,8 +129,6 @@ shinyServer(function(input, output) {
 # str(rock)
 # str(cars)
 # str(pressure)
-# str(NYC.load.df)
-# xtable(NYC.load.df)
 #   captionText <- reactive(function() {
 #     c("Units of MWh per hour")
 #   })
