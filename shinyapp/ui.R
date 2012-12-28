@@ -19,12 +19,9 @@ welcomeMessage <- helpText(
 shinyUI(pageWithSidebar(
      
      headerPanel("Meteolytica Demo"),
-   
-#      # Print project title at top of page
-#   headerPanel(textOutput("projectTitle")),
   
   # Sidebar with control to select the number of forecast periods to display
-  sidebarPanel(       
+     sidebarPanel(       
        conditionalPanel(
             condition = "input.openTab == 'welcome' ",
             helpText("Click on the tabs, proceeding from left to right ",
@@ -100,12 +97,4 @@ shinyUI(pageWithSidebar(
 ))
 
 
-############ DEPRECATED CODE (you may ignore) ################
-# Show the caption and plot of the recent history plus short-range forecast
-#   mainPanel(
-#     verbatimTextOutput("outcomesSummary"),
-# 
-#     plotOutput("forecastPlot")   
-#     #    h3(textOutput("caption")),   
-#   )
-
+########### DEPRECATED CODE (you may ignore everything below here) #############

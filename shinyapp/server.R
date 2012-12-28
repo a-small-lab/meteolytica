@@ -62,8 +62,8 @@ shinyServer(function(input, output) {
 #           outcomes.df$Date <- as.Date(outcomes.df$Date,'%m/%d/%Y')
 #           outcomes.df$Date[1]
           outcomes.ts <- ts(data = outcomesDf()[, 4], 
-                            start = 1,
-                            frequency = 24*7)
+                            start = 2005,
+                            frequency = 24*365)
           return(outcomes.ts)    # Return time series object
      })
 
@@ -75,14 +75,19 @@ shinyServer(function(input, output) {
      #  Use forecast() function to create a forecasting model 
      #  based only on user-supplied data 
      forecastModel <- reactive(function(){
-          outcomes.ts <- outcomesTs()
+          seasonal.ts <- decomposeTs()$seasonal
+          trend.ts <- decomposeTs()$trend
+          forecastSeasonals <- forecast(seasonal.ts)
+          Model <- seasonal.ts*trend.ts
+#
+#          outcomes.ts <- outcomesTs()
           #startOfTrainingWindow <-end(outcomes.ts)-input$trainingPeriods-input$testingPeriods
           #endOfTrainingWindow <- startOfTrainingWindow + input$trainingPeriods
-          outcomes.ts <- window(outcomes.ts, 
-                               start=end(outcomes.ts)-24*7*input$trainingPeriods, 
-                               end=end(outcomes.ts))
-          forecastModelOut <- forecast(outcomes.ts)
-          return(forecastModelOut)
+#           outcomes.ts <- window(outcomes.ts, 
+#                                start=end(outcomes.ts)-24*7*input$trainingPeriods, 
+#                                end=end(outcomes.ts))
+#          forecastModelOut <- forecast(outcomes.ts)
+          return(Model)
      })
      
      forecastResiduals.ts <- reactive(function(){
@@ -115,15 +120,18 @@ shinyServer(function(input, output) {
        
      # Generate a plot of the tail of obs + forecast
      output$forecastPlot <- reactivePlot(function() {
-          endPt <- end(outcomesTs())[1]+end(outcomesTs())[2]/168
+          endPt <- end(outcomesTs())[1]+end(outcomesTs())[2]/(24*365)
 #          xlim <- c(endPt-input$trainingPeriods, endPt+input$display_periods)
-          xlim <- c(endPt-3, endPt+input$display_periods)
+#          xlim <- c(endPt-, endPt+input$display_periods*24*7)
+          xlim <- c(endPt - 3/52, endPt + 2/52)
+
           xlab <- c("Weeks")
           ylab <- c("MW")
           plot(forecastModel(), 
                xlab = xlab, ylab = ylab,
-               xlim=xlim,
-               main=projectTitle
+#               xlim=xlim,
+               main=as.character(end(outcomesTs()))
+#               main=projectTitle
                )
           })
      
