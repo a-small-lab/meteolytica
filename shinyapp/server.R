@@ -63,22 +63,26 @@ shinyServer(function(input, output) {
 #           outcomes.df$Date[1]
           outcomes.ts <- ts(data = outcomesDf()[, 4], 
                             start = 2005,
-                            frequency = 24*365)
+                            frequency = 24)
+          outcomes.ts <- window(outcomes.ts, start=2008)
           return(outcomes.ts)    # Return time series object
      })
 
      #  Decompose the time series into trend, seasonal and random components
      decomposeTs <- reactive(function(){
-          return(decompose(outcomesTs(), type='mult'))
+          return(stl(outcomesTs(), s.window=7))
      })
      
      #  Use forecast() function to create a forecasting model 
      #  based only on user-supplied data 
      forecastModel <- reactive(function(){
-          seasonal.ts <- decomposeTs()$seasonal
-          trend.ts <- decomposeTs()$trend
-          forecastSeasonals <- forecast(seasonal.ts)
-          Model <- seasonal.ts*trend.ts
+          outcomes.stl <- stl(outcomesTs(), s.window=7)
+          Model <- forecast(outcomes.stl)
+          return(Model)
+#           seasonal.ts <- decomposeTs()$seasonal
+#           trend.ts <- decomposeTs()$trend
+#           forecastSeasonals <- forecast(seasonal.ts)
+#           Model <- seasonal.ts*trend.ts
 #
 #          outcomes.ts <- outcomesTs()
           #startOfTrainingWindow <-end(outcomes.ts)-input$trainingPeriods-input$testingPeriods
@@ -87,7 +91,6 @@ shinyServer(function(input, output) {
 #                                start=end(outcomes.ts)-24*7*input$trainingPeriods, 
 #                                end=end(outcomes.ts))
 #          forecastModelOut <- forecast(outcomes.ts)
-          return(Model)
      })
      
      forecastResiduals.ts <- reactive(function(){
@@ -136,7 +139,7 @@ shinyServer(function(input, output) {
           })
      
      # Display some of the forecast residuals in a table
-     output$view <- reactiveTable(function() {
+     output$accuracy <- reactiveTable(function() {
            numberOfRows <- input$numberOfObsToDisplay
            tableData <- tail(as.data.frame(forecastResiduals.ts()), n=numberOfRows)
            t(tableData)
