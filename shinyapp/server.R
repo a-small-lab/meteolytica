@@ -63,40 +63,24 @@ shinyServer(function(input, output) {
 #           outcomes.df$Date[1]
           outcomes.ts <- ts(data = outcomesDf()[, 4], 
                             start = 2005,
-                            frequency = 24)
-          outcomes.ts <- window(outcomes.ts, start=2008)
+                            frequency = 24*7)
+          outcomes.ts <- window(outcomes.ts, start=3150)
           return(outcomes.ts)    # Return time series object
      })
 
      #  Decompose the time series into trend, seasonal and random components
      decomposeTs <- reactive(function(){
-          return(stl(outcomesTs(), s.window=7))
+          return(stl(outcomesTs(), s.window=7*24))
      })
      
      #  Use forecast() function to create a forecasting model 
      #  based only on user-supplied data 
      forecastModel <- reactive(function(){
-          outcomes.stl <- stl(outcomesTs(), s.window=7)
-          Model <- forecast(outcomes.stl)
-          return(Model)
-#           seasonal.ts <- decomposeTs()$seasonal
-#           trend.ts <- decomposeTs()$trend
-#           forecastSeasonals <- forecast(seasonal.ts)
-#           Model <- seasonal.ts*trend.ts
-#
-#          outcomes.ts <- outcomesTs()
-          #startOfTrainingWindow <-end(outcomes.ts)-input$trainingPeriods-input$testingPeriods
-          #endOfTrainingWindow <- startOfTrainingWindow + input$trainingPeriods
-#           outcomes.ts <- window(outcomes.ts, 
-#                                start=end(outcomes.ts)-24*7*input$trainingPeriods, 
-#                                end=end(outcomes.ts))
-#          forecastModelOut <- forecast(outcomes.ts)
+          outcomes.stl <- stl(outcomesTs(), s.window=7*24*7)
+          fcastModel <- forecast(outcomes.stl)
+          return(fcastModel)
      })
      
-     forecastResiduals.ts <- reactive(function(){
-          Residuals <- forecastModel()$residuals
-          return(Residuals)
-     })
      
      ### DEFINE OUTPUTS ###
      
@@ -107,13 +91,12 @@ shinyServer(function(input, output) {
   
      # Display the first "n" rows of the users data in a table
      output$tableOfUsersData <- reactiveTable(function() {
-          numberOfRows <- input$numberOfObsToDisplay
-          headOfData <- head(as.data.frame(outcomesDf()), n=numberOfRows)
+          headOfData <- head(as.data.frame(outcomesDf()), n=20)
           return(headOfData)
           })
      
      output$outcomesSummary <- reactivePrint(function() {
-          summary(outcomesDf())
+          summary(outcomesTs())
           })
      
      #  Generate a plot of a decomposed time series
@@ -140,13 +123,8 @@ shinyServer(function(input, output) {
      
      # Display some of the forecast residuals in a table
      output$accuracy <- reactiveTable(function() {
-           #numberOfRows <- input$numberOfObsToDisplay
-           #tableData <- tail(as.data.frame(forecastResiduals.ts()), n=numberOfRows)
-           #t(tableData)
        forecastAccuracy <- accuracy(forecastModel())
-       return(as.table(forecastAccuracy))
-       
-#       return(t(as.table(forecastAccuracy)))
+       return(as.table(forecastAccuracy))       
            })
 
 })
@@ -161,3 +139,21 @@ shinyServer(function(input, output) {
 #   output$caption <- reactiveText(function() {
 #     captionText()
 #   })
+
+#           seasonal.ts <- decomposeTs()$seasonal
+#           trend.ts <- decomposeTs()$trend
+#           forecastSeasonals <- forecast(seasonal.ts)
+#           Model <- seasonal.ts*trend.ts
+#
+#          outcomes.ts <- outcomesTs()
+#startOfTrainingWindow <-end(outcomes.ts)-input$trainingPeriods-input$testingPeriods
+#endOfTrainingWindow <- startOfTrainingWindow + input$trainingPeriods
+#           outcomes.ts <- window(outcomes.ts, 
+#                                start=end(outcomes.ts)-24*7*input$trainingPeriods, 
+#                                end=end(outcomes.ts))
+#          forecastModelOut <- forecast(outcomes.ts)
+
+#      forecastResiduals.ts <- reactive(function(){
+#           Residuals <- forecastModel()$residuals
+#           return(Residuals)
+#      })

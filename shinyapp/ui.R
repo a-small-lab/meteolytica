@@ -20,148 +20,186 @@ electricity load for New York City from 2005--2008.",
 "This is a very early and unstable version of the system. If the program crashes, simply reload the browser to restart."
 )
 
-doc <- tags$html(
-
-  tags$head(
-    tags$title('My first page'),
-#    tags$style(tags$body(margin='100px'))
-    tags$style("body {
-            background-color: #CCC;
-        }
-               
-               #SiteBody 
-        {
-            width: 960px;
-            margin: 0 auto;
-            background-color: white;
-        }")
-  ),
-  tags$body(tags$div(id='SiteBody', class='container')
-
-  )
-)
-
-cat(as.character(doc))
+# doc <- tags$html(
+# 
+#   tags$head(
+#     tags$title('My first page'),
+# #    tags$style(tags$body(margin='100px'))
+#     tags$style("body {
+#             background-color: #CCC;
+#         }
+#                
+#                #SiteBody 
+#         {
+#             width: 960px;
+#             margin: 0 auto;
+#             background-color: white;
+#         }")
+#   ),
+#   tags$body(tags$div(id='SiteBody', class='container')
+# 
+#   )
+# )
+# 
+# cat(as.character(doc))
 
 #<body leftmargin="0px" topmargin="0px" marginwidth="0px" marginheight="0px">,
 
 
-shinyUI(
-bootstrapPage(
-h1("Meteolytica Demo"),
-tabsetPanel(id="openTab",
-            tabPanel("Welcome", value='welcome',          
-                     pageWithSidebar(
-                       headerPanel("Welcome to Meteolytica"),
-                       sidebarPanel(),
-                       mainPanel(welcomeMessage)
-                       )
-                     ),
+shinyUI(bootstrapPage(
+    h1("Meteolytica Demo"),
 
-            tabPanel("[Placeholder]", value='placeholder',
-                     pageWithSidebar(                           
-                           headerPanel("Meteolytica Demo"),
-                           
-                           # Sidebar with control to select the number of forecast periods to display
-                           sidebarPanel(       
-                             
-                             conditionalPanel(
-                               condition = "input.openTab == 'welcome' ",
-                               helpText("Click on the tabs, proceeding from left to right ",
-                                        "to see context-specific instructions.")
-                             ),
-                             
-                             #         tabsetPanel(id='dist',
-                             #                     tabPanel("Normal", value='norm', textInput("dist1","Xdist1", c("norm"))), 
-                             #                     tabPanel("Uniform", value='unif', textInput("dist2","Xdist2", c("unif"))), 
-                             #                     tabPanel("Log-normal", value='lnorm', textInput("dist3","Xdist3", c("lnorm"))), 
-                             #                     tabPanel("Exponential", value='exp', textInput("dist4","Xdist4", c("exp"))) 
-                             #         ), 
-                             #         br(), 
-                             
-                             conditionalPanel(
-                               condition = "input.openTab == 'upload' ",
-                               fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
-                             ),
-                             
-                             conditionalPanel(
-                               condition = "input.openTab == 'view' ",
-                               helpText("Your data.")
-                             ),
-                             
-                             conditionalPanel(
-                               condition = "input.openTab == 'create' ",
-                               numericInput(inputId = "trainingPeriods",
-                                            label = "Number of weeks of data to use for training",
-                                            3),
-                               numericInput(inputId = "testingPeriods",
-                                            label = "Number of weeks of data to use for testing",
-                                            0)
-                             ),
-                             
-                             conditionalPanel(
-                               condition = "input.openTab == 'plot' ",
-                               sliderInput(inputId = "display_periods",
-                                           label = "Number of forecast weeks to display in plot:",
-                                           min = 0.2, max = 2, step = 0.2, value = 1)            
-                             ),
-                             
-                             conditionalPanel(
-                               condition = "input.openTab == 'performance' ",
-                               numericInput("numberOfObsToDisplay", 
-                                            "Number of observations to display in table:", 
-                                            10)            
-                             )
-                             
-                           ),
-                           
-                        mainPanel()
-                           
-                         )),
+    tabsetPanel(id="openTab",
+
+      tabPanel("Welcome", value='welcome', h1("Welcome to Meteolytica"),          
+        wellPanel(welcomeMessage)
+        ),
+
+# Placeholder tab ---------------------------------------------------------
+      
+#       tabPanel("[Placeholder]", value='placeholder',
+#         pageWithSidebar(                           
+#           headerPanel("Meteolytica Demo"),
+#           sidebarPanel(),
+#           mainPanel()
+#                              
+#                              conditionalPanel(
+#                                condition = "input.openTab == 'welcome' ",
+#                                helpText("Click on the tabs, proceeding from left to right ",
+#                                         "to see context-specific instructions.")
+#                              ),
+#                              
+#                              #         tabsetPanel(id='dist',
+#                              #                     tabPanel("Normal", value='norm', textInput("dist1","Xdist1", c("norm"))), 
+#                              #                     tabPanel("Uniform", value='unif', textInput("dist2","Xdist2", c("unif"))), 
+#                              #                     tabPanel("Log-normal", value='lnorm', textInput("dist3","Xdist3", c("lnorm"))), 
+#                              #                     tabPanel("Exponential", value='exp', textInput("dist4","Xdist4", c("exp"))) 
+#                              #         ), 
+#                              #         br(), 
+#                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'upload' ",
+# #                                fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
+# #                              ),
+# #                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'view' ",
+# #                                helpText("Your data.")
+# #                              ),
+#                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'create' ",
+# #                                numericInput(inputId = "trainingPeriods",
+# #                                             label = "Number of weeks of data to use for training",
+# #                                             3),
+# #                                numericInput(inputId = "testingPeriods",
+# #                                             label = "Number of weeks of data to use for testing",
+# #                                             0)
+# #                              ),
+# #                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'plot' ",
+# #                                sliderInput(inputId = "display_periods",
+# #                                            label = "Number of forecast weeks to display in plot:",
+# #                                            min = 0.2, max = 2, step = 0.2, value = 1)            
+# #                              ),
+#                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'performance' ",
+# #                                numericInput("numberOfObsToDisplay", 
+# #                                             "Number of observations to display in table:", 
+# #                                             10)            
+# #                              )
+#                              
+#                            ),
+#                            
+#      mainPanel()
+#                            
+#                          )),
+
+      
+# Project tab ---------------------------------------------------------
+
+#         tabPanel("Your Project", value='project',
+#           tabsetPanel(id='projectTab',
+#             tabPanel("Describe your project", value='describeProject'),
+#             tabPanel("Test 3"),
+#             tabPanel("Test 4")
+#             )
+#           ),
                   
-            tabPanel("Your Project", value='project',
-                    tabsetPanel(id='projectTab',
-                                tabPanel("Describe your project", value='describeProject'),
-                                tabPanel("Test 3"),
-                                tabPanel("Test 4")
-                                )
-                    ),
-                  
-            tabPanel("Your Data", value='data',
-                    tabsetPanel(id="dataTab",
-                                tabPanel("Upload your data", value='uploadData',
-                                         conditionalPanel(
-                                           condition = "input.openTab == 'data' ",
-                                           fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
-                                         )
-                                ),
-                                tabPanel("View your data", value='viewData', 
-                                         verbatimTextOutput("outcomesSummary"),
-                                         tableOutput("tableOfUsersData")
-                                         )
-                                )
-                    ),
+
+# Data tab -----------------------------------------------------------
+    
+      tabPanel("Your Data", value='data',
+        tabsetPanel(id="dataTab",
+          
+          tabPanel("Choose an example dataset", value='chooseData',
+            pageWithSidebar(
+              headerPanel(""),
+              sidebarPanel(
+                selectInput("dataset", "Choose a dataset:",
+                  list("UK power usage" = "taylor", 
+                    "Transmission" = "am", 
+                    "Gears" = "gear")),
                 
-            tabPanel("Forecast Model Generator", value='model',
-                     bootstrapPage(
-                       tabsetPanel(id='modelTab',
-                                   tabPanel("Create forecasting model", value='create', 
-                                            plotOutput('decomposedTsPlot')
-                                            ),
-                                   tabPanel("View plot", value='plot', 
-                                            plotOutput("forecastPlot")
-                                            )
-                                   )
-                       )
-                     ), 
+                checkboxInput("usersOwnData", "Upload your own dataset", FALSE),
 
-             tabPanel("Forecast Accuracy", value='performance', 
-                        tableOutput("accuracy")
-                        )
+                conditionalPanel(
+                  condition = "input.usersOwnData",
+                  h4("[This feature is not yet implemented.]"),
+                  fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
+                )
+                ),
+              mainPanel()
+              )
+            ),
 
-              )  #  Close top-level tabsetPanel()
-      )          #  Close bootstrapPage()
-   )             #  Close ShinyUI()
+#           tabPanel("Upload your own dataset", value='uploadData',
+#             h4("[This feature is not yet implemented.]"),
+#             fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
+# #             pageWithSidebar(                           
+# #                headerPanel("Upload historical data about the process you wish to forecast"),
+# #                sidebarPanel(textOutput("Hello.")),
+# #                mainPanel(textOutput("Hello yerself."))
+# #            ),
+#             ),
+                                
+          tabPanel("Examine your data", value='viewData', 
+            verbatimTextOutput("outcomesSummary"),
+            tableOutput("tableOfUsersData")
+            ),
+                                
+          tabPanel("Time series decomposition", value='stl', 
+            plotOutput('decomposedTsPlot')
+            )
+                                
+          )
+        ),
+    
+# Model generator tab ---------------------------------------------------------
+      
+      tabPanel("Forecast Model Generator", value='model',
+          bootstrapPage(
+            tabsetPanel(id='modelTab',
+              tabPanel("Create forecasting model", value='create'),
+                
+              tabPanel("View plot", value='plot', 
+                plotOutput("forecastPlot")
+                )
+              )
+            )
+          ), 
+
+# Model accuracy tab ---------------------------------------------------------
+
+      tabPanel("Forecast Accuracy", value='performance', 
+        tableOutput("accuracy")
+        )
+
+      )  #  Close top-level tabsetPanel()
+    )   #   Close bootstrapPage()
+  )             #  Close ShinyUI()
 
 
 ########### DEPRECATED CODE (you may ignore everything below here) #############
