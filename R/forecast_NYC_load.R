@@ -14,6 +14,24 @@
 #  If it isn't, use: setwd("/Path/from/root/meteolytica")
 
 library(forecast)
+library(expsmooth)
+
+URL <- "http://www.exponentialsmoothing.net/sites/default/files/utility.csv"
+utility.df <- read.csv(URL)
+utility.ts <- ts(utility.df, start = 2005, frequency = 24*365)
+plot(utility.ts)
+
+URL <- "http://www.exponentialsmoothing.net/sites/default/files/canadagas.csv"
+data.df <- read.csv(URL)
+head(data.df)
+data.df[1:10,2]
+data.ts <- ts(data.df[,1], start = c(1960, 1), freq = 12)
+head(data.ts)
+str(data.ts)
+data.ts <- window(data.ts, start=1990)
+plot(data.ts)
+forecastModel <- forecast(data.ts)
+plot(forecastModel)
 
 ProjectID = c("(Name of user)","Load","NYC-temp+load-hourly-feb2005--may2008.csv",
               "Forecasting electric power load in New York City")
@@ -35,22 +53,29 @@ outcomesDataCSVFile <- paste(PathFromRoot,UserDataDirectory,UserDataCSVFile,sep=
 #  Read user's outcomes data from file, creating a data frame
 NYC.temp.load <- read.table(outcomesDataCSVFile, header = TRUE, sep = ",")
 
+
 # Clean outcomes series and convert it to a time series object
 
 source("R/outcomes.df2ts.R")    
 NYC.load.ts <- outcomes.df2ts(NYC.temp.load)
 summary(NYC.load.ts)
 str(NYC.load.ts)
+head(NYC.load.ts)
 
 # For development only: Truncate time series, to make the code run faster.
 NYC.load.ts <- window(NYC.load.ts, start=165)
+head(NYC.load.ts)
 
+activeTab <- integer()
+activeTab <- 4
+activeTab 
 # Create forecasting models -----------------------------------------------
 
 #  Create a load forecasting model using the forecast() package, 
 #  based only the load time series
 system.time(NYC.load.forecast <- forecast(NYC.load.ts))
 
+head(NYC.load.forecast$residuals)
 #  Plot forecast
 plot(NYC.load.forecast, main="Forecast of NYC load (MW)", xlim=c(170,175))
 
