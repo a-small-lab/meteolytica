@@ -2,8 +2,9 @@
 #  Server logic module for Meteolytica web app demo.
 #  Created by A.A. Small 24 Dec 2012 based on Shiny's Mpg application.
 
-library(shiny)
-library(forecast)
+library(shiny)       # Shiny web app
+library(forecast)    # Automated forecasting analytics
+library(fpp)         # Example datasets
 
 ProjectID <- c("(Name of user)",
                "Load",
@@ -40,10 +41,18 @@ source(funk)
 # Define server logic required to plot forecast
 shinyServer(function(input, output) {
        
-     ### DEFINE FUNCTIONS ###
+  ### DEFINE FUNCTIONS ###
+  
+  # Identify the time series of historical outcomes data according to user's selection
+  historicalTs <- reactive(function(){
+    dataset.ts <- input$dataset
+    return(dataset.ts)
+  })
+  
 
      #  Read user's outcomes data from UI, then convert it from CSV to data frame.
      #  If user doesn't upload a file, default to a prepared CSV file.
+  
      outcomesDf <- reactive (function(){
           if(is.null(input$file)) {
                infileCSV <- outcomesDataCSVFile
@@ -82,7 +91,12 @@ shinyServer(function(input, output) {
      })
      
      
-     ### DEFINE OUTPUTS ###
+  ### DEFINE OUTPUTS ###
+  
+  # Create plot of historical outcomes data
+  output$historicalTsPlot <- reactivePlot(function(){
+    plot(historicalTs())
+  })
      
      # Return the text for the main title of the page
      output$projectTitle  <- reactiveText(function() {

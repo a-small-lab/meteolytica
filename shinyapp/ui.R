@@ -11,12 +11,11 @@ welcomeMessage <- helpText(
 "The tabs above are organized from left to right to reflect the user's workflow. Click on the tabs to see context-specific instructions.",
      helpText("\n"),
 "CAUTIONARY NOTES:",
-     helpText("\n"),
-"The file upload feature is not yet working on glimmer.rstudio.org: you must use one of the prepared data files. For now the only prepared data file is a time series of hourly 
-electricity load for New York City from 2005--2008.",
-     helpText("\n"),
-"Performance is slow. Results will take several seconds to load. Please be patient.",
-     helpText("\n"),
+#     helpText("\n"),
+"The file upload feature is not yet implemented. For the time being, you must use one of the prepared data files. ",
+#     helpText("\n"),
+"Performance is slow. Results may take several seconds to load. Please be patient.",
+#     helpText("\n"),
 "This is a very early and unstable version of the system. If the program crashes, simply reload the browser to restart."
 )
 
@@ -47,13 +46,35 @@ electricity load for New York City from 2005--2008.",
 
 
 shinyUI(bootstrapPage(
-    h1("Meteolytica Demo"),
+  h1("Welcome to Meteolytica"), 
 
-    tabsetPanel(id="openTab",
+  tabsetPanel(id="openTab",
 
-      tabPanel("Welcome", value='welcome', h1("Welcome to Meteolytica"),          
-        wellPanel(welcomeMessage)
-        ),
+      tabPanel("Welcome", value='welcome',          
+        wellPanel(welcomeMessage),
+        
+        pageWithSidebar(
+          headerPanel(""),
+          sidebarPanel(
+            selectInput("dataset", "Choose an example dataset:",
+              list("UK power usage" = "taylor"
+                #                     , 
+                #                     "Transmission" = "am", 
+                #                     "Gears" = "gear"
+              )
+            ),
+            
+            checkboxInput("upload", "Upload your own dataset", FALSE),
+            
+            conditionalPanel(
+              condition = "input.upload",
+              h4("[This feature is not yet implemented.]"),
+              fileInput("uploadFile", "Upload a time series file", multiple = FALSE, accept = NULL)
+            )
+          ),
+          mainPanel(plotOutput("historicalTsPlot"))
+        )        
+      ),
 
 # Placeholder tab ---------------------------------------------------------
       
@@ -134,25 +155,8 @@ shinyUI(bootstrapPage(
       tabPanel("Your Data", value='data',
         tabsetPanel(id="dataTab",
           
-          tabPanel("Choose an example dataset", value='chooseData',
-            pageWithSidebar(
-              headerPanel(""),
-              sidebarPanel(
-                selectInput("dataset", "Choose a dataset:",
-                  list("UK power usage" = "taylor", 
-                    "Transmission" = "am", 
-                    "Gears" = "gear")),
-                
-                checkboxInput("usersOwnData", "Upload your own dataset", FALSE),
-
-                conditionalPanel(
-                  condition = "input.usersOwnData",
-                  h4("[This feature is not yet implemented.]"),
-                  fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
-                )
-                ),
-              mainPanel()
-              )
+          tabPanel("Choose an example dataset", value='chooseData'
+#            ,
             ),
 
 #           tabPanel("Upload your own dataset", value='uploadData',
