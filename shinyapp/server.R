@@ -140,9 +140,13 @@ shinyServer(function(input, output) {
      
      # Display some of the forecast residuals in a table
      output$accuracy <- reactiveTable(function() {
-           numberOfRows <- input$numberOfObsToDisplay
-           tableData <- tail(as.data.frame(forecastResiduals.ts()), n=numberOfRows)
-           t(tableData)
+           #numberOfRows <- input$numberOfObsToDisplay
+           #tableData <- tail(as.data.frame(forecastResiduals.ts()), n=numberOfRows)
+           #t(tableData)
+       forecastAccuracy <- accuracy(forecastModel())
+       return(as.table(forecastAccuracy))
+       
+#       return(t(as.table(forecastAccuracy)))
            })
 
 })

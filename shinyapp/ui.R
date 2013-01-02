@@ -129,7 +129,12 @@ tabsetPanel(id="openTab",
                   
             tabPanel("Your Data", value='data',
                     tabsetPanel(id="dataTab",
-                                tabPanel("Upload your data", value='uploadData'),
+                                tabPanel("Upload your data", value='uploadData',
+                                         conditionalPanel(
+                                           condition = "input.openTab == 'data' ",
+                                           fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
+                                         )
+                                ),
                                 tabPanel("View your data", value='viewData', 
                                          verbatimTextOutput("outcomesSummary"),
                                          tableOutput("tableOfUsersData")
