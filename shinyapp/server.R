@@ -6,6 +6,9 @@ library(shiny)       # Shiny web app
 library(forecast)    # Automated forecasting analytics
 library(fpp)         # Example datasets
 
+beer <- aggregate(ausbeer) # Pre-processing of one data set
+
+
 ProjectID <- c("(Name of user)",
                "Load",
                "NYC-temp+load-hourly-feb2005--may2008.csv",
@@ -45,7 +48,7 @@ shinyServer(function(input, output) {
   
   # Identify the time series of historical outcomes data according to user's selection
   historicalTs <- reactive(function(){
-    dataset.ts <- input$dataset
+    dataset.ts <- "input$dataset"
     return(dataset.ts)
   })
   
@@ -72,8 +75,8 @@ shinyServer(function(input, output) {
 #           outcomes.df$Date[1]
           outcomes.ts <- ts(data = outcomesDf()[, 4], 
                             start = 2005,
-                            frequency = 24*7)
-          outcomes.ts <- window(outcomes.ts, start=3150)
+                            frequency = 7)
+#          outcomes.ts <- window(outcomes.ts, start=2000)
           return(outcomes.ts)    # Return time series object
      })
 
@@ -93,9 +96,17 @@ shinyServer(function(input, output) {
      
   ### DEFINE OUTPUTS ###
   
+  output$headOfHistoricalTs <- reactivePrint(function(){
+    head <- head(as.data.frame(historicalTs()))
+    return(head)
+  })
+  
   # Create plot of historical outcomes data
   output$historicalTsPlot <- reactivePlot(function(){
-    plot(historicalTs())
+    timeSeries <- historicalTs()
+    plot(timeSeries)
+#     ylimits = c(min(historicalTs()), max(historicalTs()))
+#     plot(historicalTs(), ylim=ylimits)
   })
      
      # Return the text for the main title of the page
