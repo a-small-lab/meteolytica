@@ -97,8 +97,8 @@ shinyUI(
             #tableOutput("tableOfUsersData")
             ),
                                 
-          tabPanel("Time series decomposition", value='stl'#, 
-            # plotOutput('decomposedTsPlot')
+          tabPanel("Time series decomposition", value='stl', 
+            plotOutput('predictandHistoryStlPlot')
             )                                
           )
         ),

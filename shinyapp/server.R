@@ -36,15 +36,13 @@ beer <- aggregate(ausbeer) # Pre-processing of one data set
 # source(funk)    
 
 
-# CREATE FORECASTING MODEL -----------------------------------------------
+# BEGIN SHINY SERVER()  ----------------------------------------------------
 
-
-# DEFINE SHINY SERVER FUNCTION ----------------------------------------------------
-
-# Define server logic required to plot forecast
 shinyServer(function(input, output) {
        
-  ### DEFINE FUNCTIONS ###
+# PREDICTAND HISTORY: Collect, organize, and display data and meta-data --------
+
+# > Collect and organize data and meta-data describing predictand history ------
   
   # Identify the time series of historical outcomes data according to user's selection
   predictandHistoryTs <- reactive(function(){
@@ -52,7 +50,7 @@ shinyServer(function(input, output) {
     return(tSeries)
   })
   
-#   # Draft code for more advanced version of predictandHistoryTs() that allows
+#   # Draft code shell for more advanced version of predictandHistoryTs() that allows
 #   # user option to upload own dataset
 #   predictandHistoryTs <- reactive(function(){
 #     if(input$upload==FALSE){
@@ -69,46 +67,49 @@ shinyServer(function(input, output) {
 #       }
 #     }
 #   })
-  
 
+# > Generate plots and reports describing predictand history -------------------
+  
   # Create plot of historical outcomes data
   output$predictandHistoryTsPlot <- reactivePlot(function(){
     timeSeries <- predictandHistoryTs()
     plot(timeSeries)
   })
+     
 
-     #  Read user's outcomes data from UI, then convert it from CSV to data frame.
-     #  If user doesn't upload a file, default to a prepared CSV file.
+  #   output$headOfHistoricalTs <- reactivePrint(function(){
+  #     head <- head(as.data.frame(historicalTs()[1]))
+  #     return(head)
+  #   })
   
-#      outcomesDf <- reactive (function(){
-#           if(is.null(input$file)) {
-#                infileCSV <- outcomesDataCSVFile
-#           } else {
-#                infileCSV <- as.character(input$file[1])
-#           }
-#           infile.df <- read.csv(infileCSV, header = TRUE)
-#           clean.df <- cleanDf(infile.df)
-#           return(clean.df)
-#      })
-     
-     # Convert outcomes data into a time series object, with parameters as
-     # specified by user.
-#      outcomesTs <- reactive(function(){
-# #          #     Convert text dates into R's internal "Date" class
-# #           outcomes.df$Date <- as.Date(outcomes.df$Date,'%m/%d/%Y')
-# #           outcomes.df$Date[1]
-#           outcomes.ts <- ts(data = outcomesDf()[, 4], 
-#                             start = 2005,
-#                             frequency = 7)
-# #          outcomes.ts <- window(outcomes.ts, start=2000)
-#           return(outcomes.ts)    # Return time series object
-#      })
+  #      # Return the text for the main title of the page
+  #      output$projectTitle  <- reactiveText(function() {
+  #           projectTitle
+  #           })
+  
+  #      # Display the first "n" rows of the users data in a table
+  #      output$tableOfUsersData <- reactiveTable(function() {
+  #           headOfData <- head(as.data.frame(outcomesDf()), n=20)
+  #           return(headOfData)
+  #           })
+  
+  #      output$outcomesSummary <- reactivePrint(function() {
+  #           summary(outcomesTs())
+  #           })
+  
+  #  Decompose the time series into trend, seasonal and random components,
+  #  and generate a plot of a decomposed time series
+  decomposeTs <- reactive(function(){
+            return(stl(predictandHistoryTs(), s.window=7*24*1000))
+       })
 
-#      #  Decompose the time series into trend, seasonal and random components
-#      decomposeTs <- reactive(function(){
-#           return(stl(outcomesTs(), s.window=7*24))
-#      })
-     
+  output$predictandHistoryStlPlot <- reactivePlot(function(){  
+            return(plot(decomposeTs()))          
+       })
+  
+
+# FORECASTING MODEL: Generate, display -----------------------------------------
+  
      #  Use forecast() function to create a forecasting model 
      #  based only on user-supplied data 
 #      forecastModel <- reactive(function(){
@@ -120,30 +121,6 @@ shinyServer(function(input, output) {
      
   ### DEFINE OUTPUTS ###
   
-#   output$headOfHistoricalTs <- reactivePrint(function(){
-#     head <- head(as.data.frame(historicalTs()[1]))
-#     return(head)
-#   })
-  
-#      # Return the text for the main title of the page
-#      output$projectTitle  <- reactiveText(function() {
-#           projectTitle
-#           })
-  
-#      # Display the first "n" rows of the users data in a table
-#      output$tableOfUsersData <- reactiveTable(function() {
-#           headOfData <- head(as.data.frame(outcomesDf()), n=20)
-#           return(headOfData)
-#           })
-     
-#      output$outcomesSummary <- reactivePrint(function() {
-#           summary(outcomesTs())
-#           })
-     
-#      #  Generate a plot of a decomposed time series
-#      output$decomposedTsPlot <- reactivePlot(function(){
-#           return(plot(decomposeTs()))          
-#      })
        
 #      # Generate a plot of the tail of obs + forecast
 #      output$forecastPlot <- reactivePlot(function() {
@@ -171,7 +148,7 @@ shinyServer(function(input, output) {
 })
 
 
-# Deprecated code (you may ignore) ----------------------------------------
+# ####  DEPRECATED CODE (you may ignore) ######  ---------------------------------
 #   captionText <- reactive(function() {
 #     c("Units of MWh per hour")
 #   })
@@ -197,4 +174,18 @@ shinyServer(function(input, output) {
 #      forecastResiduals.ts <- reactive(function(){
 #           Residuals <- forecastModel()$residuals
 #           return(Residuals)
+#      })
+
+
+# Convert outcomes data into a time series object, with parameters as
+# specified by user.
+#      outcomesTs <- reactive(function(){
+# #          #     Convert text dates into R's internal "Date" class
+# #           outcomes.df$Date <- as.Date(outcomes.df$Date,'%m/%d/%Y')
+# #           outcomes.df$Date[1]
+#           outcomes.ts <- ts(data = outcomesDf()[, 4], 
+#                             start = 2005,
+#                             frequency = 7)
+# #          outcomes.ts <- window(outcomes.ts, start=2000)
+#           return(outcomes.ts)    # Return time series object
 #      })
