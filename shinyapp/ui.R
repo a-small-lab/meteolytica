@@ -4,6 +4,7 @@
 #  Based on Shiny's Mpg application, plus additions from many sources.
 
 library(shiny)
+library(forecast)
 library(fpp)
 
 welcomeMessage <- helpText(
@@ -57,27 +58,31 @@ shinyUI(
 
       tabPanel("Welcome", value='welcome',
 #        welcomeMessage,
-#        wellPanel(welcomeMessage),    
+        wellPanel(welcomeMessage),    
         pageWithSidebar(
           headerPanel(""),
           sidebarPanel(
-            selectInput("dataset", "Choose an example dataset:",
-              list("UK electricity consumption" = "taylor",
-                   "Austrailian beer production" = "beer",
-                   "Austrailian pharma usage" = "a10"
-              ),
-            ),
-            
-            checkboxInput("upload", "Upload your own dataset", FALSE),
-            
-            conditionalPanel(
-              condition = "input$upload==TRUE",
-              h4("[The data upload feature is not yet implemented.]"),
-              fileInput("uploadFile", "Upload a time series file", multiple = FALSE, accept = NULL)
+            selectInput(inputId = "dataset", 
+              label = "Choose an example dataset:",
+              choices = list(
+                "UK electricity consumption" = "taylor",
+                "Austrailian beer production" = "beer",
+                "Austrailian pharma usage" = "a10"),
+              selected = "taylor"),
+                        
+            checkboxInput(inputId = "upload", 
+              label = "Upload your own dataset", 
+              value = FALSE),
+                        
+            conditionalPanel(condition = "input.upload == true",
+              fileInput(inputId = "uploadedFile", 
+                label = paste("Upload a time series file ",  
+                             "[This feature is not yet supported.]"), 
+                multiple = FALSE, accept = NULL)
             )
           ),
-          mainPanel(welcomeMessage)
-#          mainPanel(tableOutput("headOfHistoricalTs"))
+#          mainPanel(textOutput("testReactive"))                              
+          mainPanel(plotOutput(outputId = "historicalTsPlot", height = "300px"))
           )        
       ),
 
@@ -87,29 +92,14 @@ shinyUI(
       tabPanel("Your Data", value='data',
         tabsetPanel(id="dataTab",
           
-          tabPanel("Choose an example dataset", value='chooseData'
-#            ,
-            ),
-
-#           tabPanel("Upload your own dataset", value='uploadData',
-#             h4("[This feature is not yet implemented.]"),
-#             fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
-# #             pageWithSidebar(                           
-# #                headerPanel("Upload historical data about the process you wish to forecast"),
-# #                sidebarPanel(textOutput("Hello.")),
-# #                mainPanel(textOutput("Hello yerself."))
-# #            ),
-#             ),
-                                
-          tabPanel("Examine your data", value='viewData', 
-            verbatimTextOutput("outcomesSummary"),
-            tableOutput("tableOfUsersData")
+          tabPanel("Examine your data", value='viewData'#, 
+            #verbatimTextOutput("outcomesSummary"),
+            #tableOutput("tableOfUsersData")
             ),
                                 
-          tabPanel("Time series decomposition", value='stl', 
-            plotOutput('decomposedTsPlot')
-            )
-                                
+          tabPanel("Time series decomposition", value='stl'#, 
+            # plotOutput('decomposedTsPlot')
+            )                                
           )
         ),
     
@@ -120,8 +110,8 @@ shinyUI(
             tabsetPanel(id='modelTab',
               tabPanel("Create forecasting model", value='create'),
                 
-              tabPanel("View plot", value='plot', 
-                plotOutput("forecastPlot")
+              tabPanel("View plot", value='plot'#, 
+             #   plotOutput("forecastPlot")
                 )
               )
             )
@@ -129,8 +119,8 @@ shinyUI(
 
 # Model accuracy panel ---------------------------------------------------------
 
-      tabPanel("Forecast Accuracy", value='performance', 
-        tableOutput("accuracy")
+      tabPanel("Forecast Accuracy", value='performance'#, 
+        #tableOutput("accuracy")
         )
 
       )  #  Close top-level tabsetPanel()
