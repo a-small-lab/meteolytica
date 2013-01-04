@@ -122,8 +122,8 @@ shinyUI(
 
 # Model accuracy panel ---------------------------------------------------------
 
-      tabPanel("Forecast accuracy", value='performance'#, 
-        #tableOutput("accuracy")
+      tabPanel("Forecast accuracy", value='performance', 
+        tableOutput("accuracy")
         )
 
       )  #  Close top-level tabsetPanel()

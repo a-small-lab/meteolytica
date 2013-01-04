@@ -127,11 +127,15 @@ shinyServer(function(input, output) {
       )
     })
      
-#      # Display some of the forecast residuals in a table
-#      output$accuracy <- reactiveTable(function() {
-#        forecastAccuracy <- accuracy(forecastModel())
-#        return(as.table(forecastAccuracy))       
-#            })
+  
+
+# MODEL EVALUATION --------------------------------------------------------
+  
+  # Display some of the forecast residuals in a table
+  output$accuracy <- reactiveTable(function() {
+    forecastAccuracy <- accuracy(forecastModel())
+    return(as.table(forecastAccuracy))       
+    })
 
 })
 
