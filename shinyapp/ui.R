@@ -82,7 +82,7 @@ shinyUI(
             )
           ),
 #          mainPanel(textOutput("testReactive"))                              
-          mainPanel(plotOutput(outputId = "historicalTsPlot", height = "300px"))
+          mainPanel(plotOutput(outputId = "predictandHistoryTsPlot", height = "300px"))
           )        
       ),
 

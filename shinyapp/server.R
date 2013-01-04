@@ -47,34 +47,35 @@ shinyServer(function(input, output) {
   ### DEFINE FUNCTIONS ###
   
   # Identify the time series of historical outcomes data according to user's selection
-  historicalTs <- reactive(function(){
-    dataset.ts <- get(input$dataset)
-    return(dataset.ts)
+  predictandHistoryTs <- reactive(function(){
+    tSeries <- get(input$dataset)
+    return(tSeries)
   })
   
-  # Utility function for testing and debugging
-#  output$testReactive <- reactiveText(function(){
-#    as.character(identical(taylor,get(input$dataset)))
-#    input$dataset
-#     isNA <- is.na(input$dataset)
-#     isFinite <- is.finite(input$dataset)
-#     as.character(input$dataset[!isFinite])
-#    attributes(input$dataset[1])
-#    as.ts(input$dataset)
-#    str(input$dataset)
-#     formulaText <- paste("head(",input$dataset,")")
-#     as.formula(formulaText)
-#    })
+#   # Draft code for more advanced version of predictandHistoryTs() that allows
+#   # user option to upload own dataset
+#   predictandHistoryTs <- reactive(function(){
+#     if(input$upload==FALSE){
+#       tSeries <- get(input$dataset)
+#       return(tSeries)
+#     }  else  {
+#       if(is.null(input$file)) {
+#         return(NULL)
+#       } else {
+#         # cleanFile <- clean(input$file, ...) # Need to write cleaning utility function 
+#         # tSeries <- as.ts(cleanFile, ... )   # (...) = parameters from meta-data
+#         # return (tSeries)
+#         return(NULL)
+#       }
+#     }
+#   })
+  
 
   # Create plot of historical outcomes data
-  output$historicalTsPlot <- reactivePlot(function(){
-    timeSeries <- get(input$dataset)
+  output$predictandHistoryTsPlot <- reactivePlot(function(){
+    timeSeries <- predictandHistoryTs()
     plot(timeSeries)
   })
-  #     ylimits = c(min(historicalTs()), max(historicalTs()))
-    #     plot(historicalTs(), ylim=ylimits)
-  
-  
 
      #  Read user's outcomes data from UI, then convert it from CSV to data frame.
      #  If user doesn't upload a file, default to a prepared CSV file.
