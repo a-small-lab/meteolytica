@@ -1,6 +1,10 @@
+load(rattle)
 library(forecast)
 library(expsmooth)
 library(fpp)
+library(rattle)
+rattle()
+
 
 require(fpp)
 # Please make sure at least v3.10 of the forecast is loaded
@@ -11,11 +15,14 @@ beer <- aggregate(ausbeer)
 plot(beer)
 plot(a10)
 plot(taylor)
+class(taylor)
+class(plot(taylor))
 
 # Fully automated forecasting
 plot(forecast(beer))
 plot(forecast(a10))
 plot(forecast(taylor))
+
 attributes(taylor)
 
 # High frequency data
@@ -170,3 +177,99 @@ lines(1:12,colSums(mae2,na.rm=TRUE),type="l",col=3)
 lines(1:12,colSums(mae1,na.rm=TRUE),type="l",col=2)
 legend("topleft",legend=c("LM","ARIMA","ETS"),col=2:4,lty=1)
 
+
+
+# Placeholder tab ---------------------------------------------------------
+
+#       tabPanel("[Placeholder]", value='placeholder',
+#         pageWithSidebar(                           
+#           headerPanel("Meteolytica Demo"),
+#           sidebarPanel(),
+#           mainPanel()
+#                              
+#                              conditionalPanel(
+#                                condition = "input.openTab == 'welcome' ",
+#                                helpText("Click on the tabs, proceeding from left to right ",
+#                                         "to see context-specific instructions.")
+#                              ),
+#                              
+#                              #         tabsetPanel(id='dist',
+#                              #                     tabPanel("Normal", value='norm', textInput("dist1","Xdist1", c("norm"))), 
+#                              #                     tabPanel("Uniform", value='unif', textInput("dist2","Xdist2", c("unif"))), 
+#                              #                     tabPanel("Log-normal", value='lnorm', textInput("dist3","Xdist3", c("lnorm"))), 
+#                              #                     tabPanel("Exponential", value='exp', textInput("dist4","Xdist4", c("exp"))) 
+#                              #         ), 
+#                              #         br(), 
+#                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'upload' ",
+# #                                fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
+# #                              ),
+# #                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'view' ",
+# #                                helpText("Your data.")
+# #                              ),
+#                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'create' ",
+# #                                numericInput(inputId = "trainingPeriods",
+# #                                             label = "Number of weeks of data to use for training",
+# #                                             3),
+# #                                numericInput(inputId = "testingPeriods",
+# #                                             label = "Number of weeks of data to use for testing",
+# #                                             0)
+# #                              ),
+# #                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'plot' ",
+# #                                sliderInput(inputId = "display_periods",
+# #                                            label = "Number of forecast weeks to display in plot:",
+# #                                            min = 0.2, max = 2, step = 0.2, value = 1)            
+# #                              ),
+#                              
+# #                              conditionalPanel(
+# #                                condition = "input.openTab == 'performance' ",
+# #                                numericInput("numberOfObsToDisplay", 
+# #                                             "Number of observations to display in table:", 
+# #                                             10)            
+# #                              )
+#                              
+#                            ),
+#                            
+#      mainPanel()
+#                            
+#                          )),
+
+
+# Project tab ---------------------------------------------------------
+
+#         tabPanel("Your Project", value='project',
+#           tabsetPanel(id='projectTab',
+#             tabPanel("Describe your project", value='describeProject'),
+#             tabPanel("Test 3"),
+#             tabPanel("Test 4")
+#             )
+#           ),
+
+# Utility function for testing and debugging
+#  output$testReactive <- reactiveText(function(){
+#    as.character(identical(taylor,get(input$dataset)))
+#    input$dataset
+#     isNA <- is.na(input$dataset)
+#     isFinite <- is.finite(input$dataset)
+#     as.character(input$dataset[!isFinite])
+#    attributes(input$dataset[1])
+#    as.ts(input$dataset)
+#    str(input$dataset)
+#     formulaText <- paste("head(",input$dataset,")")
+#     as.formula(formulaText)
+#    })
+
+#  Decompose the time series into trend, seasonal and random components,
+#  and generate a plot of a decomposed time series
+output$predictandHistoryStlPlot <- reactivePlot(function(){
+  sWindow <- 7*24 # Temporary place-holder; actual value will be based on meta-data
+  decomposeTs <- stl(predictandHistoryTs(), s.window=sWindow)
+  return(plot(decomposeTs))          
+})
