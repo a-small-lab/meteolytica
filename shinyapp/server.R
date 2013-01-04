@@ -6,7 +6,8 @@ library(shiny)       # Shiny web app
 library(forecast)    # Automated forecasting analytics
 library(fpp)         # Example datasets
 
-beer <- aggregate(ausbeer) # Pre-processing of one data set
+#beer <- aggregate(ausbeer) # Pre-processing of one data set
+beer <- ausbeer
 
 
 # ProjectID <- c("(Name of user)",

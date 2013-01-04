@@ -4,8 +4,8 @@
 #  Based on Shiny's Mpg application, plus additions from many sources.
 
 library(shiny)
-library(forecast)
-library(fpp)
+#library(forecast)
+#library(fpp)
 
 welcomeMessage <- helpText(
 "Meteolytica is a web app designed to generate forecasting models automatically based on historical data supplied by the user.",
@@ -66,7 +66,7 @@ shinyUI(
               label = "Choose an example dataset:",
               choices = list(
                 "UK electricity consumption" = "taylor",
-                "Austrailian beer production" = "beer",
+  #              "Austrailian beer production" = "beer",
                 "Austrailian pharma usage" = "a10"),
               selected = "taylor"),
                         
