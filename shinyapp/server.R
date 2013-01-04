@@ -72,58 +72,45 @@ shinyServer(function(input, output) {
   
   # Create plot of historical outcomes data
   output$predictandHistoryTsPlot <- reactivePlot(function(){
-    timeSeries <- predictandHistoryTs()
-    plot(timeSeries)
-  })
-     
+    tSeries <- predictandHistoryTs()
+    plot(tSeries)
+    })
 
-  #   output$headOfHistoricalTs <- reactivePrint(function(){
-  #     head <- head(as.data.frame(historicalTs()[1]))
-  #     return(head)
-  #   })
+  #  Print out a summary description of the time series
+  output$predictandHistoricalTsSummary <- reactivePrint(function() {
+    return(summary(predictandHistoryTs()))
+    })  
   
-  #      # Return the text for the main title of the page
-  #      output$projectTitle  <- reactiveText(function() {
-  #           projectTitle
-  #           })
-  
-  #      # Display the first "n" rows of the users data in a table
-  #      output$tableOfUsersData <- reactiveTable(function() {
-  #           headOfData <- head(as.data.frame(outcomesDf()), n=20)
-  #           return(headOfData)
-  #           })
-  
-  #      output$outcomesSummary <- reactivePrint(function() {
-  #           summary(outcomesTs())
-  #           })
+  # Make a table showing the first few and last few elements in the series
+  output$predictandHistoricalTsHead <- reactivePrint(function(){
+    tSeries <- predictandHistoryTs()
+    head <- head(as.data.frame(tSeries), n=20)
+    return(head)
+    })
   
   #  Decompose the time series into trend, seasonal and random components,
   #  and generate a plot of a decomposed time series
-  decomposeTs <- reactive(function(){
-            return(stl(predictandHistoryTs(), s.window=7*24*1000))
+  predictandHistoryStl <- reactive(function(){
+    # NEEDED HERE: test whether predictand ts is periodic, & only apply stl() if true
+    return(stl(predictandHistoryTs(), s.window='periodic'))
        })
 
   output$predictandHistoryStlPlot <- reactivePlot(function(){  
-            return(plot(decomposeTs()))          
+            return(plot(predictandHistoryStl()))          
        })
   
 
-# FORECASTING MODEL: Generate, display -----------------------------------------
+# FORECASTING MODEL: Generate and display -----------------------------------------
   
-     #  Use forecast() function to create a forecasting model 
-     #  based only on user-supplied data 
-#      forecastModel <- reactive(function(){
-#           outcomes.stl <- stl(outcomesTs(), s.window=7*24*7)
-#           fcastModel <- forecast(outcomes.stl)
-#           return(fcastModel)
-#      })
-     
-     
-  ### DEFINE OUTPUTS ###
+  #  Use forecast() function to create a forecasting model 
+  #  based (for now) only on user-supplied data 
+  forecastModel <- reactive(function(){
+    fcastModel <- forecast(predictandHistoryStl())
+    return(fcastModel)
+    })
   
-       
-#      # Generate a plot of the tail of obs + forecast
-#      output$forecastPlot <- reactivePlot(function() {
+  # Generate a plot of the tail of obs + forecast
+  output$forecastPlot <- reactivePlot(function() {
 #           endPt <- end(outcomesTs())[1]+end(outcomesTs())[2]/(24*365)
 # #          xlim <- c(endPt-input$trainingPeriods, endPt+input$display_periods)
 # #          xlim <- c(endPt-, endPt+input$display_periods*24*7)
@@ -131,13 +118,14 @@ shinyServer(function(input, output) {
 # 
 #           xlab <- c("Weeks")
 #           ylab <- c("MW")
-#           plot(forecastModel(), 
+    plot(forecastModel()
+      #, 
 #                xlab = xlab, ylab = ylab,
 # #               xlim=xlim,
 #                main=as.character(end(outcomesTs()))
 # #               main=projectTitle
-#                )
-#           })
+      )
+    })
      
 #      # Display some of the forecast residuals in a table
 #      output$accuracy <- reactiveTable(function() {
@@ -149,6 +137,12 @@ shinyServer(function(input, output) {
 
 
 # ####  DEPRECATED CODE (you may ignore) ######  ---------------------------------
+
+#      # Return the text for the main title of the page
+#      output$projectTitle  <- reactiveText(function() {
+#           projectTitle
+#           })
+
 #   captionText <- reactive(function() {
 #     c("Units of MWh per hour")
 #   })
@@ -189,3 +183,21 @@ shinyServer(function(input, output) {
 # #          outcomes.ts <- window(outcomes.ts, start=2000)
 #           return(outcomes.ts)    # Return time series object
 #      })
+
+#      # Generate a plot of the tail of obs + forecast
+#      output$forecastPlot <- reactivePlot(function() {
+#           endPt <- end(outcomesTs())[1]+end(outcomesTs())[2]/(24*365)
+# #          xlim <- c(endPt-input$trainingPeriods, endPt+input$display_periods)
+# #          xlim <- c(endPt-, endPt+input$display_periods*24*7)
+#           xlim <- c(endPt - 3/52, endPt + 2/52)
+# 
+#           xlab <- c("Weeks")
+#           ylab <- c("MW")
+#           plot(forecastModel(), 
+#                xlab = xlab, ylab = ylab,
+# #               xlim=xlim,
+#                main=as.character(end(outcomesTs()))
+# #               main=projectTitle
+#                )
+#           })
+

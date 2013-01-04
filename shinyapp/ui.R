@@ -82,36 +82,39 @@ shinyUI(
             )
           ),
 #          mainPanel(textOutput("testReactive"))                              
-          mainPanel(plotOutput(outputId = "predictandHistoryTsPlot", height = "300px"))
+          mainPanel(plotOutput(outputId = "predictandHistoryTsPlot"))
           )        
       ),
 
 
-# Data panel -----------------------------------------------------------
+# Data visualization panel -----------------------------------------------------------
     
-      tabPanel("Your Data", value='data',
+      tabPanel("Visualize your data", value='data',
         tabsetPanel(id="dataTab",
           
-          tabPanel("Examine your data", value='viewData'#, 
-            #verbatimTextOutput("outcomesSummary"),
-            #tableOutput("tableOfUsersData")
+          tabPanel("Tables", value='viewData', 
+            wellPanel("An overview of your historical data. \n [THIS TAB NEEDS WORK!]"),
+            verbatimTextOutput("predictandHistoricalTsSummary"),
+            br(), 
+            tableOutput("predictandHistoricalTsHead")
             ),
                                 
-          tabPanel("Time series decomposition", value='stl', 
+          tabPanel("Seasonal decomposition", value='stl',
+            wellPanel("In the plot below, your selected data series (top panel) may be viewed as the sum of three parts: a periodic seasonal component, a long-term trend, and a residual, or random noise component."),
             plotOutput('predictandHistoryStlPlot')
             )                                
           )
         ),
     
-# Model generator panel ---------------------------------------------------------
+# Forecast model generator panel ---------------------------------------------------------
       
-      tabPanel("Forecast Model Generator", value='model',
+      tabPanel("Generate a forecasting model", value='model',
           bootstrapPage(
             tabsetPanel(id='modelTab',
-              tabPanel("Create forecasting model", value='create'),
+              #tabPanel("Create forecasting model", value='create'),
                 
-              tabPanel("View plot", value='plot'#, 
-             #   plotOutput("forecastPlot")
+              tabPanel("View plot", value='plot', 
+                plotOutput("forecastPlot")
                 )
               )
             )
@@ -119,7 +122,7 @@ shinyUI(
 
 # Model accuracy panel ---------------------------------------------------------
 
-      tabPanel("Forecast Accuracy", value='performance'#, 
+      tabPanel("Forecast accuracy", value='performance'#, 
         #tableOutput("accuracy")
         )
 
