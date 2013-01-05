@@ -121,9 +121,32 @@ shinyServer(function(input, output) {
   #  Use forecast() function to create a forecasting model 
   #  based (for now) only on user-supplied data 
   forecastModel <- reactive(function(){
-    fcastModel <- forecast(predictandHistoryStl())
-    return(fcastModel)
+  # if (input$forecastButton == 0)
+    return(NULL)    
+  # return(isolate({
+  #   forecast(predictandHistoryStl())
+  # }))
+#     fcastModel <- forecast(predictandHistoryStl())
+#     return(fcastModel)
     })
+  
+#   mydata <- reactive(function() {
+#     # Don't do anything until after the first button push.
+#     if (input$recalcButton == 0)
+#       return(NULL)
+#     
+#     # Note that just by virtue of checking the value of input$recalcButton,
+#     # we're now going to get called whenever it is pushed.
+#     
+#     return(isolate({
+#       # Now do the expensive stuff
+#       foo <- activateInterlock(input$foo)
+#       bar <- connectDynotherm(input$bar)
+#       baz <- bringInfracellsUp(input$baz)
+#       c(foo=foo, bar=bar, baz=baz)
+#     }))
+#   })
+  
 
   
 # > Reports on forecasting model ------
@@ -165,7 +188,7 @@ shinyServer(function(input, output) {
     expressionText <- as.character(expression)
     #return(paste(expressionText,expression))
     as.character(predictandHistoryXts())
-    as.character(xtsible(taylor))
+    as.character(tsp(get(input$dataset)))
   })
 
 }) #############################################

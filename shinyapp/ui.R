@@ -79,7 +79,7 @@ shinyUI(
               label = "Upload your own dataset", 
               value = FALSE),
                         
-            conditionalPanel(condition = "input.upload == true",
+            conditionalPanel("input.upload == true",
               fileInput(inputId = "uploadedFile", 
                 label = paste("Upload a time series file. 
                                Must be in plain text CSV format.",  
