@@ -3,10 +3,11 @@
 #  Created by A.A. Small 24 Dec 2012 based on Shiny's Mpg application.
 
 library(shiny)       # Shiny web app
+library(xts)         # Support for eXtensible Time Series structures
 library(forecast)    # Automated forecasting analytics
 library(fpp)         # Example datasets
 
-#beer <- aggregate(ausbeer) # Pre-processing of one data set
+
 beer <- ausbeer
 
 
@@ -49,6 +50,18 @@ shinyServer(function(input, output) {
   predictandHistoryTs <- reactive(function(){
     tSeries <- get(input$dataset)
     return(tSeries)
+  })
+  
+  # Assemble xts object containing data & meta-data for predictand history
+  predictandHistoryXts <- reactive(function(){
+    data <- get(input$dataset)
+    return(as.ts(taylor))
+#     frequency <- NULL # Need to code fcn() to establish time series frequency
+#     xts(data,
+# #      order.by = index(data),
+#       frequency = frequency,
+#       unique = TRUE,
+#       tzone = "GMT")
   })
   
 #   # Draft code shell for more advanced version of predictandHistoryTs() that allows
@@ -101,7 +114,9 @@ shinyServer(function(input, output) {
        })
   
 
-# FORECASTING MODEL: Generate and display -----------------------------------------
+# FORECASTING MODEL: Generate model and reports  -----------------------------------------
+
+# > Engine for generating forecasting model ------
   
   #  Use forecast() function to create a forecasting model 
   #  based (for now) only on user-supplied data 
@@ -109,6 +124,9 @@ shinyServer(function(input, output) {
     fcastModel <- forecast(predictandHistoryStl())
     return(fcastModel)
     })
+
+  
+# > Reports on forecasting model ------
   
   # Generate a plot of the tail of obs + forecast
   output$forecastPlot <- reactivePlot(function() {
@@ -127,7 +145,7 @@ shinyServer(function(input, output) {
 # #               main=projectTitle
       )
     })
-     
+
   
 
 # MODEL EVALUATION --------------------------------------------------------
@@ -138,10 +156,22 @@ shinyServer(function(input, output) {
     return(as.table(forecastAccuracy))       
     })
 
-})
 
+# MODEL EXPORT and app testing area  -------------------------------------------
 
-# ####  DEPRECATED CODE (you may ignore) ######  ---------------------------------
+  # General-use testing function
+  output$testOutput <- reactivePrint(function(){
+    expression <- str(input)
+    expressionText <- as.character(expression)
+    #return(paste(expressionText,expression))
+    as.character(predictandHistoryXts())
+    as.character(xtsible(taylor))
+  })
+
+}) #############################################
+######  END ShinyServer()             ########## 
+
+######  DEPRECATED CODE (you may ignore)  ######  
 
 #      # Return the text for the main title of the page
 #      output$projectTitle  <- reactiveText(function() {
