@@ -4,6 +4,7 @@
 #  Based on Shiny's Mpg application, plus additions from many sources.
 
 library(shiny)
+library(shinyIncubator)
 library(xts)
 #library(forecast)
 #library(fpp)
@@ -24,7 +25,9 @@ Meteolytica is being designed to work well especially for forecasting processes 
 "CAUTIONARY NOTES:",
 "The file upload feature is not yet implemented. For the time being, you must use one of the prepared data files. ",
 "Performance is slow. Results may take several seconds to load. Please be patient.",
-"This is a very early and unstable version of the system. If the program crashes, simply reload the browser to restart."
+"This is a very early and unstable version of the system. If the program crashes, simply reload the browser to restart.",
+  helpText("\n"),
+  strong("Click on the next tab to get started.")
 )
 
 # doc <- tags$html(
@@ -62,93 +65,132 @@ shinyUI(
 # WELCOME panel -----------------------------------------------------------
 
       tabPanel("Welcome", value='welcome',
-#        welcomeMessage,
-        wellPanel(welcomeMessage),    
-        pageWithSidebar(
-          headerPanel(""),
-          sidebarPanel(
-            selectInput(inputId = "dataset", 
-              label = "Choose an example dataset:",
-              choices = list(
-                "UK electricity consumption" = "taylor",
-  #              "Austrailian beer production" = "beer",
-                "Austrailian pharma usage" = "a10"),
-              selected = "taylor"),
-                        
-            checkboxInput(inputId = "upload", 
-              label = "Upload your own dataset", 
-              value = FALSE),
-                        
-            conditionalPanel("input.upload == true",
-              fileInput(inputId = "uploadedFile", 
-                label = paste("Upload a time series file. 
-                               Must be in plain text CSV format.",  
-                             "[This feature is not yet supported.]"), 
-                multiple = FALSE, 
-                accept = "text/csv")
-            )
-          ),
-#          mainPanel(textOutput("testReactive"))                              
-          mainPanel(plotOutput(outputId = "predictandHistoryTsPlot", height="300px"))
-          )        
+        wellPanel(welcomeMessage)
       ),
 
 # META-DATA project background panel -------------------------------------------
 
-      tabPanel("Tell us about your data", value='metadata',
-        wellPanel("[In this panel the user will supply meta-data that describe the data.]")),
+      tabPanel("Describe your forecasting challenge", value='metadata',
+#        wellPanel("[In this panel the user will supply meta-data that describe the data.]"),
+        pageWithSidebar(headerPanel(""),
+          sidebarPanel(
+            selectInput(inputId = "dataset", 
+              label = strong("Explore Meteolytica using an example dataset"),
+              choices = list(
+                "UK electricity consumption" = "taylor",
+                #              "Austrailian beer production" = "beer",
+                "Austrailian pharma usage" = "a10"),
+              selected = "taylor"),  
+            
+            helpText("\n"),
+            
+            checkboxInput(inputId = "upload", 
+              label = strong("Or: Upload your own dataset"), 
+              value = FALSE),
+            
+            conditionalPanel("input.upload == true",
+              fileInput(inputId = "uploadedFile", 
+                label = paste("Must be a time series file 
+                               in plain text CSV format.",  
+                  "[Upload feature not yet fully supported.]"), 
+                multiple = FALSE, 
+                accept = "text/csv"),
+              helpText("\n"),
+              helpText(strong("Now tell us about your data...")),
+              
+              tabsetPanel(id="metadataTabset",
+                
+                tabPanel("Title", value='titleTab'),
+                
+                tabPanel("Time", value='timeTab'),
+                
+                tabPanel("Location", value='locationTab'),
+                
+                tabPanel("Units", value='unitsTab')
+                
+              )
+              
+            )
+            
+          ),
+
+          mainPanel(
+            tabsetPanel(id="viewdataTab",    
+              
+              tabPanel("Plot", value='viewPlot',
+                plotOutput(outputId = "predictandHistoryTsPlot")
+              ),
+              
+              tabPanel("Tables", value='viewTables', 
+                wellPanel("An overview of your historical data. [THIS PANEL NEEDS WORK!]"),
+                verbatimTextOutput("predictandHistoricalTsSummary"),
+                br(), 
+                tableOutput("predictandHistoricalTsHead")
+              ),
+              
+              
+              tabPanel("Seasonal decomposition", value='viewStl',
+# #                wellPanel("In the plot below, your selected data series (top panel) may be viewed as the sum of three parts: a periodic seasonal component, a long-term trend, and a residual, or random noise component."),
+                plotOutput('predictandHistoryStlPlot')
+              )
+              
+            )
+            
+          )
+        )
+      ),  # Close tabPanel
         
 
-# DATA visualization panel -----------------------------------------------------
-    
-      tabPanel("Visualize your data", value='data',
-        tabsetPanel(id="dataTab",
-          
-          tabPanel("Tables", value='viewData', 
-            wellPanel("An overview of your historical data. \n [THIS TAB NEEDS WORK!]"),
-            verbatimTextOutput("predictandHistoricalTsSummary"),
-            br(), 
-            tableOutput("predictandHistoricalTsHead")
-            ),
-                                
-          tabPanel("Seasonal decomposition", value='stl',
-            wellPanel("In the plot below, your selected data series (top panel) may be viewed as the sum of three parts: a periodic seasonal component, a long-term trend, and a residual, or random noise component."),
-            plotOutput('predictandHistoryStlPlot')
-            )                                
-          )
-        ),
-    
 # FORECAST model generator panel ---------------------------------------------------------
       
       tabPanel("Generate a forecasting model", value='model',
-          bootstrapPage(
+        pageWithSidebar(
+          headerPanel(""),
+          sidebarPanel(
+            actionButton('generateForecastButton', "Generate forecasting model")
+          ),
+          mainPanel(            
             tabsetPanel(id='modelTab',
-              #tabPanel("Create forecasting model", value='create'),
-                
+            
               tabPanel("View plot", value='plot', 
                 plotOutput("forecastPlot")
-                )
-              )
+              ),
+            
+              tabPanel("Expected accuracy", value='evaluation', 
+                tableOutput("accuracy")
+              )            
             )
-          ), 
-
-# EVALUATION: Model accuracy panel ---------------------------------------------------------
-
-      tabPanel("Review forecast accuracy", value='evaluation', 
-        tableOutput("accuracy")
-        ),
-
+          )
+        )
+      ), 
 
 # EXPORT panel ---------------------------------------------------------
 
-      tabPanel("Export your model", value='export', 
-        wellPanel("[This panel is slated to contain utilities for exporting the forecasting model the user has just created. In the interim, it is used as a staging area in which the application developers run various tests.")
-        , verbatimTextOutput("testOutput")          
-        )
+      tabPanel("Take your model with you", value='export', 
+        wellPanel("[This panel will contain utilities for exporting the forecasting model the user has just created.]")
+        ),
+      
+# MORE INFORMATION panel ----------------------------
+      tabPanel("Further information", value='moreInfo', 
+        wellPanel("[This panel will contain additional information the performance they can expect, and about Meteolytica's overall performance. The goal is to start transitioning the user from a experimenter to a committed user who would be open to considering moving up to a premium version of the service.]")
+      )
+      
+      
+      # We anticipate adding another panel describing Meteolytica's performance
+      
+# Debugging panel ---------------------------------------------------------
 
+#     , tabPanel("[CONSTRUCTION ZONE]", value='debugging', 
+#         wellPanel("[This panel is used as a staging area in which the application developers run various tests.")
+#         , verbatimTextOutput("testOutput")          
+#       )
+#       
+      
       )  #  Close top-level tabsetPanel()
   )      #  Close bootstrapPage()
 )        #  Close ShinyUI()
+
+
 
 
 ########### DEPRECATED CODE (you may ignore everything below here) #############

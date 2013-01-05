@@ -3,12 +3,15 @@
 #  Created by A.A. Small 24 Dec 2012 based on Shiny's Mpg application.
 
 library(shiny)       # Shiny web app
+library(shinyIncubator)
 library(xts)         # Support for eXtensible Time Series structures
 library(forecast)    # Automated forecasting analytics
 library(fpp)         # Example datasets
 
 
 beer <- ausbeer
+
+# Initialize value to assure forecast is computed at program start-up
 
 
 # ProjectID <- c("(Name of user)",
@@ -121,33 +124,15 @@ shinyServer(function(input, output) {
   #  Use forecast() function to create a forecasting model 
   #  based (for now) only on user-supplied data 
   forecastModel <- reactive(function(){
-  # if (input$forecastButton == 0)
-    return(NULL)    
-  # return(isolate({
-  #   forecast(predictandHistoryStl())
-  # }))
-#     fcastModel <- forecast(predictandHistoryStl())
-#     return(fcastModel)
-    })
-  
-#   mydata <- reactive(function() {
-#     # Don't do anything until after the first button push.
-#     if (input$recalcButton == 0)
-#       return(NULL)
-#     
-#     # Note that just by virtue of checking the value of input$recalcButton,
-#     # we're now going to get called whenever it is pushed.
-#     
-#     return(isolate({
-#       # Now do the expensive stuff
-#       foo <- activateInterlock(input$foo)
-#       bar <- connectDynotherm(input$bar)
-#       baz <- bringInfracellsUp(input$baz)
-#       c(foo=foo, bar=bar, baz=baz)
-#     }))
-#   })
-  
-
+    if (input$generateForecastButton == -1)
+      return(NULL)
+#   else
+    return(isolate({
+      # reset value of action button to prevent further un-requested recomputation of the expensive forecast code
+      input$generateForecastButton <- -1      
+      forecast(predictandHistoryStl())
+    }))
+  })
   
 # > Reports on forecasting model ------
   

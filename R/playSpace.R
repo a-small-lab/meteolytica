@@ -273,3 +273,23 @@ output$predictandHistoryStlPlot <- reactivePlot(function(){
   decomposeTs <- stl(predictandHistoryTs(), s.window=sWindow)
   return(plot(decomposeTs))          
 })
+
+# DATA visualization panel -----------------------------------------------------
+
+tabPanel("Visualize your data", value='data',
+  tabsetPanel(id="dataTab",
+    
+    tabPanel("Tables", value='viewData', 
+      wellPanel("An overview of your historical data. \n [THIS TAB NEEDS WORK!]"),
+      verbatimTextOutput("predictandHistoricalTsSummary"),
+      br(), 
+      tableOutput("predictandHistoricalTsHead")
+    ),
+    
+    tabPanel("Seasonal decomposition", value='stl',
+      wellPanel("In the plot below, your selected data series (top panel) may be viewed as the sum of three parts: a periodic seasonal component, a long-term trend, and a residual, or random noise component."),
+      plotOutput('predictandHistoryStlPlot')
+    )                                
+  )
+),
+
