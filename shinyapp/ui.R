@@ -16,8 +16,8 @@ that you care about."),
 "The system does that work for you, automatically.",
   helpText("\n"),
 "If you work in business, for example, Meteolytica can help you with forecasting sales for a particular product, product line, or entire organization.  
-The applications are much broader, however. They include those in public health, energy demand management, transport, and many other fields. Meteolytica is 
-being designed to work well especially for forecasting processes that are sensitive to changes in weather or climate.",
+But the applications are much broader. In public health, energy demand management, transport, and many other fields, people who have an idea of what's coming are able to make better decisions. 
+Meteolytica is being designed to work well especially for forecasting processes that are sensitive to changes in weather or climate.",
   helpText("\n"),
 "What Meteolytica requires from you is data: historical data that describe how the process you want to forecast has behaved in the past. The tabs above are organized from left to right to reflect the user's workflow. Click on the tabs to see context-specific instructions.",
      helpText("\n"),
@@ -81,9 +81,11 @@ shinyUI(
                         
             conditionalPanel(condition = "input.upload == true",
               fileInput(inputId = "uploadedFile", 
-                label = paste("Upload a time series file ",  
+                label = paste("Upload a time series file. 
+                               Must be in plain text CSV format.",  
                              "[This feature is not yet supported.]"), 
-                multiple = FALSE, accept = NULL)
+                multiple = FALSE, 
+                accept = "text/csv")
             )
           ),
 #          mainPanel(textOutput("testReactive"))                              
@@ -141,8 +143,7 @@ shinyUI(
 
       tabPanel("Export your model", value='export', 
         wellPanel("[This panel is slated to contain utilities for exporting the forecasting model the user has just created. In the interim, it is used as a staging area in which the application developers run various tests.")
-        , verbatimTextOutput("testOutput")
-          
+        , verbatimTextOutput("testOutput")          
         )
 
       )  #  Close top-level tabsetPanel()
