@@ -124,11 +124,18 @@ shinyUI(
 
       tabPanel("Forecast accuracy", value='performance', 
         tableOutput("accuracy")
+        ),
+
+
+# Export panel ---------------------------------------------------------
+
+      tabPanel("Export", value='export', 
+        wellPanel("[This panel will contain utilities for exporting the forecasting model the user has created.]")
         )
 
       )  #  Close top-level tabsetPanel()
-    )   #   Close bootstrapPage()
-  )             #  Close ShinyUI()
+  )      #  Close bootstrapPage()
+)        #  Close ShinyUI()
 
 
 ########### DEPRECATED CODE (you may ignore everything below here) #############
