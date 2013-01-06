@@ -13,14 +13,14 @@ welcomeMessage <- helpText(
 strong("Meteolytica is a web app designed to help you create a forecasting model for events
 that you care about."),
   helpText("\n"),
-"Using Meteolytica does not require any expertise in statistics or other methods of data analysis.",
-"The system does that work for you, automatically.",
-  helpText("\n"),
 "If you work in business, for example, Meteolytica can help you with forecasting sales for a particular product, product line, or entire organization.  
 But the applications are much broader. In public health, energy demand management, transport, and many other fields, people who have an idea of what's coming are able to make better decisions. 
 Meteolytica is being designed to work well especially for forecasting processes that are sensitive to changes in weather or climate.",
   helpText("\n"),
-"What Meteolytica requires from you is data: historical data that describe how the process you want to forecast has behaved in the past. The tabs above are organized from left to right to reflect the user's workflow. Click on the tabs to see context-specific instructions.",
+  "Using Meteolytica does not require any expertise in statistics or other methods of data analysis.",
+  "The system does that work for you, automatically.",
+  helpText("\n"),
+  "What Meteolytica requires from you is data: historical data that describe how the process you want to forecast has behaved in the past. The tabs above are organized from left to right to reflect the user's workflow. Click on the tabs to see context-specific instructions.",
      helpText("\n"),
 "CAUTIONARY NOTES:",
 "The file upload feature is not yet implemented. For the time being, you must use one of the prepared data files. ",
@@ -180,7 +180,7 @@ shinyUI(
 # Debugging panel ---------------------------------------------------------
 
     , tabPanel("[CONSTRUCTION ZONE]", value='debugging', 
-        wellPanel("[This panel is used as a staging area in which the application developers run various tests.")
+        wellPanel("[This panel provides a staging area in which the application developers run various tests. It will not appear in the finished version of Meteolytica.]")
         , verbatimTextOutput("testOutput")          
       )
       
