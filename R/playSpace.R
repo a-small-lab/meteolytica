@@ -181,36 +181,13 @@ legend("topleft",legend=c("LM","ARIMA","ETS"),col=2:4,lty=1)
 
 # Placeholder tab ---------------------------------------------------------
 
-#       tabPanel("[Placeholder]", value='placeholder',
-#         pageWithSidebar(                           
-#           headerPanel("Meteolytica Demo"),
-#           sidebarPanel(),
-#           mainPanel()
-#                              
-#                              conditionalPanel(
-#                                condition = "input.openTab == 'welcome' ",
-#                                helpText("Click on the tabs, proceeding from left to right ",
-#                                         "to see context-specific instructions.")
-#                              ),
-#                              
 #                              #         tabsetPanel(id='dist',
 #                              #                     tabPanel("Normal", value='norm', textInput("dist1","Xdist1", c("norm"))), 
 #                              #                     tabPanel("Uniform", value='unif', textInput("dist2","Xdist2", c("unif"))), 
 #                              #                     tabPanel("Log-normal", value='lnorm', textInput("dist3","Xdist3", c("lnorm"))), 
 #                              #                     tabPanel("Exponential", value='exp', textInput("dist4","Xdist4", c("exp"))) 
 #                              #         ), 
-#                              #         br(), 
-#                              
-# #                              conditionalPanel(
-# #                                condition = "input.openTab == 'upload' ",
-# #                                fileInput("file", "Upload a time series file", multiple = FALSE, accept = NULL)
-# #                              ),
-# #                              
-# #                              conditionalPanel(
-# #                                condition = "input.openTab == 'view' ",
-# #                                helpText("Your data.")
-# #                              ),
-#                              
+
 # #                              conditionalPanel(
 # #                                condition = "input.openTab == 'create' ",
 # #                                numericInput(inputId = "trainingPeriods",
@@ -247,8 +224,6 @@ legend("topleft",legend=c("LM","ARIMA","ETS"),col=2:4,lty=1)
 #         tabPanel("Your Project", value='project',
 #           tabsetPanel(id='projectTab',
 #             tabPanel("Describe your project", value='describeProject'),
-#             tabPanel("Test 3"),
-#             tabPanel("Test 4")
 #             )
 #           ),
 
@@ -273,23 +248,3 @@ output$predictandHistoryStlPlot <- reactivePlot(function(){
   decomposeTs <- stl(predictandHistoryTs(), s.window=sWindow)
   return(plot(decomposeTs))          
 })
-
-# DATA visualization panel -----------------------------------------------------
-
-tabPanel("Visualize your data", value='data',
-  tabsetPanel(id="dataTab",
-    
-    tabPanel("Tables", value='viewData', 
-      wellPanel("An overview of your historical data. \n [THIS TAB NEEDS WORK!]"),
-      verbatimTextOutput("predictandHistoricalTsSummary"),
-      br(), 
-      tableOutput("predictandHistoricalTsHead")
-    ),
-    
-    tabPanel("Seasonal decomposition", value='stl',
-      wellPanel("In the plot below, your selected data series (top panel) may be viewed as the sum of three parts: a periodic seasonal component, a long-term trend, and a residual, or random noise component."),
-      plotOutput('predictandHistoryStlPlot')
-    )                                
-  )
-),
-

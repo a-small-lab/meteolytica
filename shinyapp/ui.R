@@ -90,9 +90,8 @@ shinyUI(
             
             conditionalPanel("input.upload == true",
               fileInput(inputId = "uploadedFile", 
-                label = paste("Must be a time series file 
-                               in plain text CSV format.",  
-                  "[Upload feature not yet fully supported.]"), 
+                label = paste("Must be a time series file in plain text CSV format.",  
+                              "[Upload feature not yet fully supported.]"), 
                 multiple = FALSE, 
                 accept = "text/csv"),
               helpText("\n"),
@@ -123,9 +122,9 @@ shinyUI(
               
               tabPanel("Tables", value='viewTables', 
                 wellPanel("An overview of your historical data. [THIS PANEL NEEDS WORK!]"),
-                verbatimTextOutput("predictandHistoricalTsSummary"),
+                verbatimTextOutput("predictandHistorySummary"),
                 br(), 
-                tableOutput("predictandHistoricalTsHead")
+                tableOutput("predictandHistoryTable")
               ),
               
               
@@ -156,7 +155,7 @@ shinyUI(
                 plotOutput("forecastPlot")
               ),
             
-              tabPanel("Expected accuracy", value='evaluation', 
+              tabPanel("Accuracy measures", value='evaluation', 
                 tableOutput("accuracy")
               )            
             )
@@ -180,11 +179,11 @@ shinyUI(
       
 # Debugging panel ---------------------------------------------------------
 
-#     , tabPanel("[CONSTRUCTION ZONE]", value='debugging', 
-#         wellPanel("[This panel is used as a staging area in which the application developers run various tests.")
-#         , verbatimTextOutput("testOutput")          
-#       )
-#       
+    , tabPanel("[CONSTRUCTION ZONE]", value='debugging', 
+        wellPanel("[This panel is used as a staging area in which the application developers run various tests.")
+        , verbatimTextOutput("testOutput")          
+      )
+      
       
       )  #  Close top-level tabsetPanel()
   )      #  Close bootstrapPage()

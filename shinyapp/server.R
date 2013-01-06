@@ -36,9 +36,8 @@ beer <- ausbeer
 #  Read user's outcomes data from file, creating a data frame
 #NYC.temp.load <- read.table(outcomesDataCSVFile, header = TRUE, sep = ",")
 
-# cleanDf() is a utility that cleans data uploaded by user
-#funk <- c("cleanDf.R")
-# source(funk)    
+#  cleanDf() is a utility that cleans data uploaded by user
+source("cleanDf.R")    
 
 
 # BEGIN SHINY SERVER()  ----------------------------------------------------
@@ -48,6 +47,11 @@ shinyServer(function(input, output) {
 # PREDICTAND HISTORY: Collect, organize, and display data and meta-data --------
 
 # > Collect and organize data and meta-data describing predictand history ------
+
+  usersDf <- reactive(function(){
+    df <- read.csv(input$uploadedFile$name, header=TRUE)
+    df[row(df)>15000, ]
+  })
   
   # Identify the time series of historical outcomes data according to user's selection
   predictandHistoryTs <- reactive(function(){
@@ -77,7 +81,7 @@ shinyServer(function(input, output) {
 #       if(is.null(input$file)) {
 #         return(NULL)
 #       } else {
-#         # cleanFile <- clean(input$file, ...) # Need to write cleaning utility function 
+#         # cleanFile <- clean(input$uploadedFile, ...) # Need to write cleaning utility function 
 #         # tSeries <- as.ts(cleanFile, ... )   # (...) = parameters from meta-data
 #         # return (tSeries)
 #         return(NULL)
@@ -87,24 +91,26 @@ shinyServer(function(input, output) {
 
 # > Generate plots and reports describing predictand history -------------------
   
+  #  Print out a summary description of the time series
+  output$predictandHistorySummary <- reactivePrint(function() {
+    summary <- summary(predictandHistoryTs())
+    summary <- summary(usersDf())
+    return(summary)
+  })  
+  
+  # Make a table showing the first few and last few elements in the series
+  output$predictandHistoryTable <- reactiveTable(function(){
+    tSeries <- predictandHistoryTs()
+    head <- head(as.data.frame(tSeries), n=20)
+    return(head(usersDf()))
+  })
+  
   # Create plot of historical outcomes data
   output$predictandHistoryTsPlot <- reactivePlot(function(){
     tSeries <- predictandHistoryTs()
     plot(tSeries)
     })
 
-  #  Print out a summary description of the time series
-  output$predictandHistoricalTsSummary <- reactivePrint(function() {
-    return(summary(predictandHistoryTs()))
-    })  
-  
-  # Make a table showing the first few and last few elements in the series
-  output$predictandHistoricalTsHead <- reactivePrint(function(){
-    tSeries <- predictandHistoryTs()
-    head <- head(as.data.frame(tSeries), n=20)
-    return(head)
-    })
-  
   #  Decompose the time series into trend, seasonal and random components,
   #  and generate a plot of a decomposed time series
   predictandHistoryStl <- reactive(function(){
@@ -154,7 +160,6 @@ shinyServer(function(input, output) {
       )
     })
 
-  
 
 # MODEL EVALUATION --------------------------------------------------------
   
@@ -165,19 +170,28 @@ shinyServer(function(input, output) {
     })
 
 
-# MODEL EXPORT and app testing area  -------------------------------------------
+# MODEL EXPORT   -------------------------------------------
 
+  # Nothing to see here...  Move it along, folks...
+
+  
+# DEBUGGING  -----------------------------------------------
+  
   # General-use testing function
   output$testOutput <- reactivePrint(function(){
     expression <- str(input)
     expressionText <- as.character(expression)
     #return(paste(expressionText,expression))
     as.character(predictandHistoryXts())
-    as.character(tsp(get(input$dataset)))
+    df <- read.csv(input$uploadedFile$name, header=TRUE)
+    df <- df[row(df)>15000, ]
+    head(df)
   })
 
-}) #############################################
-######  END ShinyServer()             ########## 
+#############################################
+})  ######   END ShinyServer()     ########## 
+#############################################
+
 
 ######  DEPRECATED CODE (you may ignore)  ######  
 
