@@ -99,13 +99,19 @@ shinyUI(
               
               tabsetPanel(id="metadataTabset",
                 
-                tabPanel("Title", value='titleTab'),
+                tabPanel("Title", value='titleTab',
+                  textInput(inputId='title', "Give this project a title!", "Forecasting electric power load for New York City")
+                ),
                 
-                tabPanel("Time", value='timeTab'),
+                tabPanel("Units", value='unitsTab',
+                  textInput(inputId='units', "In what units are the data measured (e.g, $, MW)?", value = "MW")
+                )
                 
-                tabPanel("Location", value='locationTab'),
+                #          tabPanel("Time", value='timeTab'),
                 
-                tabPanel("Units", value='unitsTab')
+                tabPanel("Location", value='locationTab',
+                  textInput(inputId='location', "Where were these data generated?", value="New York, NY")
+                ),
                 
               )
               

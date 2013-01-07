@@ -54,6 +54,7 @@ shinyServer(function(input, output) {
     DateHour <- paste(as.character(df$Date),as.character(df$Hour))
     dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
     Xts <- as.xts(df[ ,4], order.by=dateTime)
+    
     return(Xts)
   })
   
