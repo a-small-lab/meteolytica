@@ -41,15 +41,15 @@ source("cleanDf.R")
 
 
 # Package prepared examples as xts objects
-taylorXts <- as.xts(taylor, dateFormat="POSIXct")
-xtsAttributes(taylorXts) <- list(
+taylor.xts <- as.xts(taylor, dateFormat="POSIXct")
+xtsAttributes(taylor.xts) <- list(
   title="Electricity consumption in England and Wales", 
   units="MW", 
   location=""
   )
 
-a10Xts <- as.xts(a10, dateFormat="POSIXct")
-xtsAttributes(a10Xts) <- list(
+a10.xts <- as.xts(a10, dateFormat="POSIXct")
+xtsAttributes(a10.xts) <- list(
   title="Consumption of pharmaceuticals in Australia, category A10", 
   units="", 
   location=""
@@ -57,8 +57,8 @@ xtsAttributes(a10Xts) <- list(
 
 # An (mostly) empty xts will come in handy to prevent showing error messages
 #   during transitions between reactive Xts() objects
-emptyXts <- xts()
-xtsAttributes(emptyXts) <- list(title="", units="", location="")
+empty.xts <- xts()
+xtsAttributes(empty.xts) <- list(title="", units="", location="")
 
 
 # BEGIN SHINY SERVER()  ----------------------------------------------------
@@ -108,22 +108,14 @@ shinyServer(function(input, output) {
 
   })
   
-  # Draft code shell for more advanced version of predictandHistoryTs() that allows
-  # user option to upload own dataset
-  predictandsXts <- reactive(function(){
+  # Choose which data series to identify as the predictand, based on user's selections
+  predictandXts <- reactive(function(){
     if(input$upload==FALSE){
-      return(preloadedXts())
-  
-#    }  else  {
-
-    if(is.null(input$file)) {
-      
-        return(NULL)
-      } else {
-        # return (tSeries)
-        return(NULL)
-      }
+      preloaded.xts <- paste0(input$dataset,".xts")
+      return(preloaded.xts)
     }
+    if(is.null(input$file)) return(empty.xts)
+    return(uploadedXts())
   })
 
 # > Generate plots and reports describing predictand history -------------------
