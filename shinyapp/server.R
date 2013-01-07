@@ -91,6 +91,15 @@ shinyServer(function(input, output) {
     return(xts)
   })
     
+  # Choose which data series to identify as the predictand, based on user's selections
+  predictandXts <- reactive(function(){
+    if(input$upload==FALSE){
+      preloaded.xts <- get(paste0(input$dataset,".xts"))
+      return(preloaded.xts)
+    }
+    if(is.null(input$file)) return(empty.xts)
+    return(uploadedXts())
+  })
   
   # Identify the time series of historical outcomes data according to user's selection
   predictandHistoryTs <- reactive(function(){
@@ -101,29 +110,13 @@ shinyServer(function(input, output) {
     return(tSeries)
   })
   
-  # Assemble xts object containing data & meta-data for predictand history
-  predictandHistoryXts <- reactive(function(){
-    data <- get(input$dataset)
-    return(as.ts(taylor))
-
-  })
-  
-  # Choose which data series to identify as the predictand, based on user's selections
-  predictandXts <- reactive(function(){
-    if(input$upload==FALSE){
-      preloaded.xts <- paste0(input$dataset,".xts")
-      return(preloaded.xts)
-    }
-    if(is.null(input$file)) return(empty.xts)
-    return(uploadedXts())
-  })
-
 # > Generate plots and reports describing predictand history -------------------
   
   # Create plot of historical outcomes data
   output$predictandHistoryTsPlot <- reactivePlot(function(){
-    tSeries <- predictandHistoryTs()
-    plot(uploadedXts()['2008-04-01/'])
+    tSeries <- as.ts(predictandXts())
+ #   predictandHistoryTs()
+    plot(tSeries)
   })
 
   #  Print out a summary description of the time series
@@ -212,17 +205,17 @@ shinyServer(function(input, output) {
   
   # General-use testing function
   output$testOutput <- reactivePrint(function(){
-    as.character(predictandHistoryXts())
-    df <- read.csv(input$uploadedFile$name, header=TRUE)
-    DateHour <- paste(as.character(df$Date),as.character(df$Hour))
-    dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
-    Xts <- as.xts(df[ ,4], order.by=dateTime)
-    window <- Xts['2007-01-01/']
-    df <- as.data.frame(window)
-    varnames=c("Load (MW)")
-    names(df) <- varnames    
+#    as.character(predictandHistoryXts())
+#    df <- read.csv(input$uploadedFile$name, header=TRUE)
+#    DateHour <- paste(as.character(df$Date),as.character(df$Hour))
+#    dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
+#    Xts <- as.xts(df[ ,4], order.by=dateTime)
+#    window <- Xts['2007-01-01/']
+#    df <- as.data.frame(window)
+#    varnames=c("Load (MW)")
+#    names(df) <- varnames    
     return(paste(
-      str(attributes(uploadedXts()))
+      str(predictandXts())
     ))
   })
 
