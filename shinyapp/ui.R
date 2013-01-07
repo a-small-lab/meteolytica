@@ -105,13 +105,13 @@ shinyUI(
                 
                 tabPanel("Units", value='unitsTab',
                   textInput(inputId='units', "In what units are the data measured (e.g, $, MW)?", value = "MW")
-                )
+                ),
                 
                 #          tabPanel("Time", value='timeTab'),
                 
                 tabPanel("Location", value='locationTab',
                   textInput(inputId='location', "Where were these data generated?", value="New York, NY")
-                ),
+                )
                 
               )
               

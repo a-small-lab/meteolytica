@@ -54,7 +54,8 @@ shinyServer(function(input, output) {
     DateHour <- paste(as.character(df$Date),as.character(df$Hour))
     dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
     Xts <- as.xts(df[ ,4], order.by=dateTime)
-    
+    xtsAttributes(Xts) <- list(
+      title=input$title, units=input$units, location=input$location)
     return(Xts)
   })
   
@@ -191,9 +192,6 @@ shinyServer(function(input, output) {
   
   # General-use testing function
   output$testOutput <- reactivePrint(function(){
-    expression <- str(input)
-    expressionText <- as.character(expression)
-    #return(paste(expressionText,expression))
     as.character(predictandHistoryXts())
     df <- read.csv(input$uploadedFile$name, header=TRUE)
     DateHour <- paste(as.character(df$Date),as.character(df$Hour))
@@ -202,12 +200,9 @@ shinyServer(function(input, output) {
     window <- Xts['2007-01-01/']
     df <- as.data.frame(window)
     varnames=c("Load (MW)")
-    names(df) <- varnames
-    
+    names(df) <- varnames    
     return(paste(
-      str(df), summary(df), head(df)
-#       as.character(class(df$Hour)),
-#       as.character(head(df$Hour))
+      str(attributes(userXts()))
     ))
   })
 
