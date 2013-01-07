@@ -40,6 +40,27 @@ beer <- ausbeer
 source("cleanDf.R")    
 
 
+# Package prepared examples as xts objects
+taylorXts <- as.xts(taylor, dateFormat="POSIXct")
+xtsAttributes(taylorXts) <- list(
+  title="Electricity consumption in England and Wales", 
+  units="MW", 
+  location=""
+  )
+
+a10Xts <- as.xts(a10, dateFormat="POSIXct")
+xtsAttributes(a10Xts) <- list(
+  title="Consumption of pharmaceuticals in Australia, category A10", 
+  units="", 
+  location=""
+  )
+
+# An (mostly) empty xts will come in handy to prevent showing error messages
+#   during transitions between reactive Xts() objects
+emptyXts <- xts()
+xtsAttributes(emptyXts) <- list(title="", units="", location="")
+
+
 # BEGIN SHINY SERVER()  ----------------------------------------------------
 
 shinyServer(function(input, output) {
@@ -49,22 +70,34 @@ shinyServer(function(input, output) {
 # > Collect and organize data and meta-data describing predictand history ------
 
   # Convert user's uploaded file into an xts (eXtensible Time Series) object
-  userXts <- reactive(function(){
+  uploadedXts <- reactive(function(){
     df <- read.csv(input$uploadedFile$name, header=TRUE)
     DateHour <- paste(as.character(df$Date),as.character(df$Hour))
     dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
-    Xts <- as.xts(df[ ,4], order.by=dateTime)
+    predictandCol <- 4   # (plan to make this depend on user's choice)
+    Xts <- as.xts(df[ ,predictandCol], order.by=dateTime, unique=TRUE, tzone="GMT")
+    #  # Need to code fcn() to establish time series frequency
+    #  Replace missing values using the spline() procedure
+    #    (May add later: NA's generate a warning message)
+    Xts <- na.spline(Xts)
+    #  Add meta-data attributes
     xtsAttributes(Xts) <- list(
-      title=input$title, units=input$units, location=input$location)
+      title=input$title, units=input$units, location=input$location)    
     return(Xts)
   })
   
+  preloadedXts <- reactive(function(){
+    xts <- as.xts(get(input$dataset))
+    return(xts)
+  })
+    
+  
   # Identify the time series of historical outcomes data according to user's selection
   predictandHistoryTs <- reactive(function(){
-    if(0==1){
+    if(1==1){
       return(get(input$dataset))
     }
-    tSeries <- as.ts(userXts())
+    tSeries <- as.ts(uploadedXts())
     return(tSeries)
   })
   
@@ -72,44 +105,39 @@ shinyServer(function(input, output) {
   predictandHistoryXts <- reactive(function(){
     data <- get(input$dataset)
     return(as.ts(taylor))
-#     frequency <- NULL # Need to code fcn() to establish time series frequency
-#     xts(data,
-# #      order.by = index(data),
-#       frequency = frequency,
-#       unique = TRUE,
-#       tzone = "GMT")
+
   })
   
-#   # Draft code shell for more advanced version of predictandHistoryTs() that allows
-#   # user option to upload own dataset
-#   predictandHistoryTs <- reactive(function(){
-#     if(input$upload==FALSE){
-#       tSeries <- get(input$dataset)
-#       return(tSeries)
-#     }  else  {
-#       if(is.null(input$file)) {
-#         return(NULL)
-#       } else {
-#         # cleanFile <- clean(input$uploadedFile, ...) # Need to write cleaning utility function 
-#         # tSeries <- as.ts(cleanFile, ... )   # (...) = parameters from meta-data
-#         # return (tSeries)
-#         return(NULL)
-#       }
-#     }
-#   })
+  # Draft code shell for more advanced version of predictandHistoryTs() that allows
+  # user option to upload own dataset
+  predictandsXts <- reactive(function(){
+    if(input$upload==FALSE){
+      return(preloadedXts())
+  
+#    }  else  {
+
+    if(is.null(input$file)) {
+      
+        return(NULL)
+      } else {
+        # return (tSeries)
+        return(NULL)
+      }
+    }
+  })
 
 # > Generate plots and reports describing predictand history -------------------
   
   # Create plot of historical outcomes data
   output$predictandHistoryTsPlot <- reactivePlot(function(){
     tSeries <- predictandHistoryTs()
-    plot(userXts()['2008-04-01/'])
+    plot(uploadedXts()['2008-04-01/'])
   })
 
   #  Print out a summary description of the time series
   output$predictandHistorySummary <- reactivePrint(function() {
     summary <- summary(predictandHistoryTs())
-    summary <- summary(userXts())
+    summary <- summary(uploadedXts())
     return(summary)
   })  
   
@@ -117,7 +145,7 @@ shinyServer(function(input, output) {
   output$predictandHistoryTable <- reactiveTable(function(){
 #    tSeries <- predictandHistoryTs()
 #    head <- head(as.data.frame(tSeries), n=20)
-    window <- userXts()['2007-01-01/']
+    window <- uploadedXts()['2007-01-01/']
     df <- as.data.frame(window)
     varnames=c("Load (MW)")
     names(df) <- varnames
@@ -202,7 +230,7 @@ shinyServer(function(input, output) {
     varnames=c("Load (MW)")
     names(df) <- varnames    
     return(paste(
-      str(attributes(userXts()))
+      str(attributes(uploadedXts()))
     ))
   })
 
