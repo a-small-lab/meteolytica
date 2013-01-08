@@ -103,8 +103,9 @@ shinyUI(
                   textInput(inputId='title', "Give this project a title!", "Forecasting electric power load for New York City")
                 ),
                 
-                tabPanel("Units", value='unitsTab',
-                  textInput(inputId='units', "In what units are the data measured (e.g, $, MW)?", value = "MW")
+                tabPanel("Variable", value='predictandTab',
+                  textInput(inputId='predictandName', "Name of the variable to forecast (e.g, 'Sales', 'Load'):", value="Load"),
+                  textInput(inputId='units', "Units in which data measured (e.g, $, MW):", value ="MW")
                 ),
                 
                 #          tabPanel("Time", value='timeTab'),

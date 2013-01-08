@@ -78,12 +78,12 @@ shinyServer(function(input, output) {
     dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
     predictandCol <- 4   # (plan to make this depend on user's choice)
     Xts <- as.xts(df[ ,predictandCol], order.by=dateTime, unique=TRUE, tzone="GMT")
-    #  # Need to code fcn() to establish time series frequency
+    #  # Need hear: fcn() to establish time series frequency
     #  Replace missing values using the spline() procedure
     #    (May add later: NA's generate a warning message)
     Xts <- na.spline(Xts)
     #  Add meta-data attributes
-    xtsAttributes(Xts) <- list( predictandName="", #input$predictandName,
+    xtsAttributes(Xts) <- list( predictandName=input$predictandName,
       title=input$title, units=input$units, location=input$location)    
     return(Xts)
   })
@@ -99,7 +99,7 @@ shinyServer(function(input, output) {
       preloaded.xts <- get(paste0(input$dataset,".xts"))
       return(preloaded.xts)
     }
-    #    if(is.null(input$file)) return(empty.xts)
+    # if(is.null(input$file)) return(empty.xts)
     # otherwise...
     return(uploadedXts())
   })
@@ -120,18 +120,19 @@ shinyServer(function(input, output) {
     plot(predictandXts())
   })
 
-  #  Print out a summary description of the time series
-  output$predictandHistorySummary <- reactivePrint(function() {
-    summary <- summary(predictandXts())
-    return(summary)
-  })  
+#   #  Print out a summary description of the time series
+#   output$predictandHistorySummary <- reactivePrint(function() {
+#     summary <- summary(predictandXts())
+#     return(summary)
+#   })  
   
   # Make a table showing the first few and last few elements in the series
   output$predictandHistoryTable <- reactiveTable(function(){
-    window <- predictandXts()
-    df <- as.data.frame(window)
-    varnames=c("Load (MW)")
-    names(df) <- varnames
+  #  window <- predictandXts()[startDate/endDate]
+    df <- as.data.frame(predictandXts())
+#    predname <- predictandXts()$predictandName
+#    units <- predictandXts()$units
+#    names(df) <- c(paste0(predname," (",units,")" ))
     return(head(df))
   })
   
