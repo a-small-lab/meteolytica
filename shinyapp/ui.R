@@ -78,7 +78,7 @@ shinyUI(
               label = strong("Explore Meteolytica using an example dataset"),
               choices = list(
                 "UK electricity consumption" = "taylor",
-                #              "Austrailian beer production" = "beer",
+                "Austrailian beer production" = "beer",
                 "Austrailian pharma usage" = "a10"),
               selected = "taylor"),  
             

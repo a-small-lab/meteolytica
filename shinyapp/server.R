@@ -83,6 +83,7 @@ shinyServer(function(input, output) {
     #  Add meta-data attributes
     xtsAttributes(Xts) <- list(
       title=input$title, units=input$units, location=input$location)    
+#    xts <- as.ts(xts)
     return(Xts)
   })
   
@@ -97,39 +98,35 @@ shinyServer(function(input, output) {
       preloaded.xts <- get(paste0(input$dataset,".xts"))
       return(preloaded.xts)
     }
-    if(is.null(input$file)) return(empty.xts)
+    #    if(is.null(input$file)) return(empty.xts)
+    # otherwise...
     return(uploadedXts())
   })
   
-  # Identify the time series of historical outcomes data according to user's selection
-  predictandHistoryTs <- reactive(function(){
-    if(1==1){
-      return(get(input$dataset))
-    }
-    tSeries <- as.ts(uploadedXts())
-    return(tSeries)
+  # General-use testing function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  output$testOutput <- reactivePrint(function(){
+    xts <- predictandXts()
+    return(c(
+      str(xts)
+    ))
   })
+  ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
 # > Generate plots and reports describing predictand history -------------------
   
   # Create plot of historical outcomes data
   output$predictandHistoryTsPlot <- reactivePlot(function(){
-    tSeries <- as.ts(predictandXts())
- #   predictandHistoryTs()
-    plot(tSeries)
+    plot(predictandXts())
   })
 
   #  Print out a summary description of the time series
   output$predictandHistorySummary <- reactivePrint(function() {
-    summary <- summary(predictandHistoryTs())
-    summary <- summary(uploadedXts())
+    summary <- summary(predictandXts())
     return(summary)
   })  
   
   # Make a table showing the first few and last few elements in the series
   output$predictandHistoryTable <- reactiveTable(function(){
-#    tSeries <- predictandHistoryTs()
-#    head <- head(as.data.frame(tSeries), n=20)
     window <- uploadedXts()['2007-01-01/']
     df <- as.data.frame(window)
     varnames=c("Load (MW)")
@@ -141,7 +138,7 @@ shinyServer(function(input, output) {
   #  and generate a plot of a decomposed time series
   predictandHistoryStl <- reactive(function(){
     # NEEDED HERE: test whether predictand ts is periodic, & only apply stl() if true
-    return(stl(predictandHistoryTs(), s.window='periodic'))
+    return(stl(get(input$dataset), s.window='periodic'))
        })
 
   output$predictandHistoryStlPlot <- reactivePlot(function(){  
@@ -203,21 +200,23 @@ shinyServer(function(input, output) {
   
 # DEVELOPMENT and debugging  -----------------------------------------------
   
-  # General-use testing function
-  output$testOutput <- reactivePrint(function(){
-#    as.character(predictandHistoryXts())
-#    df <- read.csv(input$uploadedFile$name, header=TRUE)
-#    DateHour <- paste(as.character(df$Date),as.character(df$Hour))
-#    dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
-#    Xts <- as.xts(df[ ,4], order.by=dateTime)
-#    window <- Xts['2007-01-01/']
-#    df <- as.data.frame(window)
-#    varnames=c("Load (MW)")
-#    names(df) <- varnames    
-    return(paste(
-      str(predictandXts())
-    ))
-  })
+#   # General-use testing function
+#   output$testOutput <- reactivePrint(function(){
+# #    as.character(predictandHistoryXts())
+# #    df <- read.csv(input$uploadedFile$name, header=TRUE)
+# #    DateHour <- paste(as.character(df$Date),as.character(df$Hour))
+# #    dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
+# #    Xts <- as.xts(df[ ,4], order.by=dateTime)
+# #    window <- Xts['2007-01-01/']
+# #    df <- as.data.frame(window)
+# #    varnames=c("Load (MW)")
+# #    names(df) <- varnames  
+#     xts <- predictandXts()
+#     return(c(
+#       str(xts)
+# #      str(attributes(xts))
+#     ))
+#   })
 
 #############################################
 })  ######   END ShinyServer()     ########## 
