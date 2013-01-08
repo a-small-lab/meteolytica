@@ -127,12 +127,10 @@ shinyUI(
               ),
               
               tabPanel("Tables", value='viewTables', 
-                wellPanel("An overview of your historical data. [THIS PANEL NEEDS WORK!]"),
-                verbatimTextOutput("predictandHistorySummary"),
-                br(), 
+                wellPanel("The first few records in your historical data."),
+              #  verbatimTextOutput("predictandHistorySummary"),
                 tableOutput("predictandHistoryTable")
-              ),
-              
+              ),              
               
               tabPanel("Seasonal decomposition", value='viewStl',
 # #                wellPanel("In the plot below, your selected data series (top panel) may be viewed as the sum of three parts: a periodic seasonal component, a long-term trend, and a residual, or random noise component."),

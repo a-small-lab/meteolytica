@@ -44,6 +44,7 @@ source("cleanDf.R")
 taylor.xts <- as.xts(taylor, dateFormat="POSIXct")
 xtsAttributes(taylor.xts) <- list(
   title="Electricity consumption in England and Wales", 
+  predictandName="Load",
   units="MW", 
   location=""
   )
@@ -51,14 +52,15 @@ xtsAttributes(taylor.xts) <- list(
 a10.xts <- as.xts(a10, dateFormat="POSIXct")
 xtsAttributes(a10.xts) <- list(
   title="Consumption of pharmaceuticals in Australia, category A10", 
-  units="", 
+  predictandName="Sales",
+  units="AUD, millions", 
   location=""
   )
 
 # An (mostly) empty xts will come in handy to prevent showing error messages
 #   during transitions between reactive Xts() objects
 empty.xts <- xts()
-xtsAttributes(empty.xts) <- list(title="", units="", location="")
+xtsAttributes(empty.xts) <- list(title="", predictandName="", units="", location="")
 
 
 # BEGIN SHINY SERVER()  ----------------------------------------------------
@@ -81,9 +83,8 @@ shinyServer(function(input, output) {
     #    (May add later: NA's generate a warning message)
     Xts <- na.spline(Xts)
     #  Add meta-data attributes
-    xtsAttributes(Xts) <- list(
+    xtsAttributes(Xts) <- list( predictandName="", #input$predictandName,
       title=input$title, units=input$units, location=input$location)    
-#    xts <- as.ts(xts)
     return(Xts)
   })
   
@@ -103,7 +104,7 @@ shinyServer(function(input, output) {
     return(uploadedXts())
   })
   
-  # General-use testing function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  # [Output testing function] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   output$testOutput <- reactivePrint(function(){
     xts <- predictandXts()
     return(c(
@@ -127,7 +128,7 @@ shinyServer(function(input, output) {
   
   # Make a table showing the first few and last few elements in the series
   output$predictandHistoryTable <- reactiveTable(function(){
-    window <- uploadedXts()['2007-01-01/']
+    window <- predictandXts()
     df <- as.data.frame(window)
     varnames=c("Load (MW)")
     names(df) <- varnames
