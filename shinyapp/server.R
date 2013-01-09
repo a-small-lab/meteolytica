@@ -8,8 +8,8 @@ library(xts)         # Support for eXtensible Time Series structures
 library(forecast)    # Automated forecasting analytics
 library(fpp)         # Example datasets
 
-
 beer <- ausbeer
+
 
 # Initialize value to assure forecast is computed at program start-up
 
@@ -46,16 +46,43 @@ xtsAttributes(taylor.xts) <- list(
   title="Electricity consumption in England and Wales", 
   predictandName="Load",
   units="MW", 
-  location=""
-  )
+  location="United Kingdom"
+)
+
+beer.xts <- as.xts(beer, dateFormat="POSIXct")
+
+xtsAttributes(beer.xts) <- list(
+  title="Beer consumption in Australia", 
+  predictandName="Beer",
+  units="AUD, millions", 
+  location="Australia"
+)
 
 a10.xts <- as.xts(a10, dateFormat="POSIXct")
 xtsAttributes(a10.xts) <- list(
   title="Consumption of pharmaceuticals in Australia, category A10", 
   predictandName="Sales",
   units="AUD, millions", 
-  location=""
+  location="Australia"
   )
+
+# A function for generating artificial time series with known periodicities.
+# Default parameters chosen to make series look kinda like NYC load series.
+fakeLoadTs <- function(mean=5000,fday=24, fweek=7*fday, fyr=365*fday, f=fyr,aday=1000,aweek=1500,ayear=2000,anoise=500,numyears=2, startYr=2005,startDay=1,seed=123,useSetSeed=FALSE){
+  t <- as.vector(1:(fyr*numyears)) 
+  xday <-  ts(sin(2*pi*t/fday),  start=c(startYr,startDay), frequency=f)  
+  xweek <- ts(sin(2*pi*t/fweek), start=c(startYr,startDay), frequency=f)
+  xyr <-   ts(sin(2*pi*t/fyr),   start=c(startYr,startDay), frequency=f)
+  if(useSetSeed==TRUE) set.seed(seed)
+  noise <- anoise*rnorm(t) 
+  x <- mean + ayr*xyr + aweek*xweek + aday*xday + noise
+  return(x)
+}
+
+test.ts <- fakeLoadTs(useSetSeed=TRUE)
+
+# An artificial xts to help with testing
+test.vector <- rnorm
 
 # An (mostly) empty xts will come in handy to prevent showing error messages
 #   during transitions between reactive Xts() objects
@@ -107,9 +134,13 @@ shinyServer(function(input, output) {
   # [Output testing function] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   output$testOutput <- reactivePrint(function(){
     xts <- predictandXts()
-    return(c(
-      str(xts)
-    ))
+    return(as.character(#list(
+#      str(beer) 
+      xtsible(get(input$dataset))
+#      str(beer.xts)
+#      ,str(preloadedXts()),
+#      ,str(xts)
+    ))#)
   })
   ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
