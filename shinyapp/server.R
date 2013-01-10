@@ -11,33 +11,41 @@ library(fpp)         # Example datasets
 
 # Package prepared examples as xts objects
 dts.taylor <- seq(from=ISOdate(2005,6,5), by='30 min', length.out=NROW(taylor))
-taylor.zoo <- zoo(taylor, order.by=dts.taylor)
-taylor.xts <- xts(taylor.zoo, dts.taylor)
+taylor.xts <- xts(taylor, order.by=dts.taylor)
 xtsAttributes(taylor.xts) <- list(
+  frequency=frequency(taylor),
+  msts=attr(taylor,'msts'),
   title="Electricity consumption in England and Wales", 
   predictandName="Load",
   units="MW", 
   location="United Kingdom"
 )
 
+str(taylor.xts)
 
 beer <- ausbeer
-beer.xts <- as.xts(beer, dateFormat="POSIXct")
-
+dts.beer <-seq(from=ISOdate(1991,1,1), by='month', length.out=NROW(beer))
+beer.xts <- xts(beer, order.by=dts.beer)
 xtsAttributes(beer.xts) <- list(
+  frequency=frequency(beer),
   title="Beer consumption in Australia", 
   predictandName="Beer",
   units="AUD, millions", 
   location="Australia"
 )
 
-a10.xts <- as.xts(a10, dateFormat="POSIXct")
+str(beer.xts)
+
+dts.a10 <-seq(from=ISOdate(1991,7,1), by='month', length.out=NROW(a10))
+a10.xts <- xts(a10, order.by=dts.a10)
 xtsAttributes(a10.xts) <- list(
+  frequency=frequency(a10),
   title="Consumption of pharmaceuticals in Australia, category A10", 
   predictandName="Sales",
   units="AUD, millions", 
   location="Australia"
   )
+
 
 # A function for generating artificial xts time series object with known 
 # periodicities. Defaults make series look kinda like NYC load series.
@@ -46,7 +54,7 @@ fakeLoadXts <- function(
     mean=5000,
     fday=24, fweek=7*fday, fyr=365*fday, f=fyr,
     aday=1000,aweek=1500,ayear=2000,anoise=500,
-    start=ISOdate(2005,1,1),numyears=2, 
+    start=ISOdate(2009,1,1),numyears=2, 
     seed=123,useSetSeed=FALSE){
   
   t <- as.vector(1:(fyr*numyears)) 
@@ -74,9 +82,7 @@ xtsAttributes(test.xts) <- list(
   location="Isla Incognita, PA"
   )
 
-str(test.xts)
 
-# 
 # # An (mostly) empty xts will come in handy to prevent showing error messages
 # #   during transitions between reactive Xts() objects
 # empty.xts <- xts()
@@ -96,22 +102,30 @@ shinyServer(function(input, output) {
     df <- read.csv(as.character(input$uploadedFile[1]), header=TRUE)
     DateHour <- paste(as.character(df$Date),as.character(df$Hour))
     dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
+    
     # Identify which column has the predictand.
     predictandCol <- 4   # (plan to make this depend on user's choice)
     Xts <- xts(df[ ,predictandCol], order.by=dateTime, unique=TRUE, tzone="GMT")
+    
     #  # Need hear: fcn() to establish time series frequency
+    #  frequency = fcn(df[,predictandCol])
+    
     #  Replace missing values using the spline() procedure
     #    (May add later: NA's generate a warning message)
     Xts <- na.spline(Xts)
+    
     #  Add meta-data attributes
-    xtsAttributes(Xts) <- list( predictandName=input$predictandName,
-      title=input$title, units=input$units, location=input$location)    
+    xtsAttributes(Xts) <- list(predictandName=input$predictandName,
+      title=input$title, units=input$units, location=input$location,
+      uploadedFile=list(#header=TRUE
+        name=as.character(input$uploadedFile[1]))
+      )  
     return(Xts)
   })
   
   # [Output testing function] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   output$testOutput <- reactivePrint(function(){
-    xts <- uploadedXts()
+    Xts <- uploadedXts()
     return(as.character(#list(
       str(Xts)
     ))#)
