@@ -77,6 +77,7 @@ shinyUI(
             selectInput(inputId = "dataset", 
               label = strong("Explore Meteolytica using an example dataset"),
               choices = list(
+               # "Test series" = 'test',
                 "UK electricity consumption" = "taylor",
                 "Austrailian beer production" = "beer",
                 "Austrailian pharma usage" = "a10"),
@@ -100,18 +101,26 @@ shinyUI(
               tabsetPanel(id="metadataTabset",
                 
                 tabPanel("Title", value='titleTab',
-                  textInput(inputId='title', "Give this project a title:", "Forecasting electric power load for New York City")
+                  textInput(inputId='title', 
+                    label="Give this project a title:", 
+                    value="Forecasting electric power load for New York City")
                 ),
-                
+      
                 tabPanel("Variable", value='predictandTab',
-                  textInput(inputId='predictandName', "Name of the variable to forecast (e.g, 'Sales', 'Load'):", value="Load"),
-                  textInput(inputId='units', "Units in which data measured (e.g, $, MW):", value ="MW")
+                  textInput(inputId='predictandName', 
+                    label="Name of the variable to forecast (e.g, 'Sales', 'Load'):", 
+                    value="Load"),
+                  textInput(inputId='units', 
+                    label="Units in which data measured (e.g, $, MW):", 
+                    value ="MW")
                 ),
                 
                 #          tabPanel("Time", value='timeTab'),
                 
                 tabPanel("Location", value='locationTab',
-                  textInput(inputId='location', "Where were these data generated?", value="New York, NY")
+                  textInput(inputId='location', 
+                    label="Where were these data generated?", 
+                    value="New York, NY")
                 )
                 
               )
@@ -170,7 +179,7 @@ shinyUI(
 
 # UPDATE panel ---------------------------------------------------------
       
-      tabPanel("Update your existing model with fresh data", value='update', 
+      tabPanel("Update your data and review model performance", value='update', 
         wellPanel("[This panel will contain utilities for adding additional data to an existing forecasting model the user created in a previous session.]")
       ),
       

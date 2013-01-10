@@ -79,15 +79,22 @@ fakeLoadTs <- function(mean=5000,fday=24, fweek=7*fday, fyr=365*fday, f=fyr,aday
   return(x)
 }
 
+
+# Create artificial ts and xts objects for use in testing and debugging
 test.ts <- fakeLoadTs(useSetSeed=TRUE)
+test.xts <- as.xts(test.ts, dateFormat="POSIXct")
+xtsAttributes(test.xts) <- list(
+  title="Widget sales", 
+  predictandName="Widget sales", 
+  units="USD, thousands", 
+  location="Isla Incognita, PA"
+  )
 
-# An artificial xts to help with testing
-test.vector <- rnorm
-
-# An (mostly) empty xts will come in handy to prevent showing error messages
-#   during transitions between reactive Xts() objects
-empty.xts <- xts()
-xtsAttributes(empty.xts) <- list(title="", predictandName="", units="", location="")
+# 
+# # An (mostly) empty xts will come in handy to prevent showing error messages
+# #   during transitions between reactive Xts() objects
+# empty.xts <- xts()
+# xtsAttributes(empty.xts) <- list(title="", predictandName="", units="", location="")
 
 
 # BEGIN SHINY SERVER()  ----------------------------------------------------
@@ -126,7 +133,7 @@ shinyServer(function(input, output) {
       preloaded.xts <- get(paste0(input$dataset,".xts"))
       return(preloaded.xts)
     }
-    # if(is.null(input$file)) return(empty.xts)
+    if(is.null(input$file)) return(test.xts)
     # otherwise...
     return(uploadedXts())
   })
@@ -136,7 +143,9 @@ shinyServer(function(input, output) {
     xts <- predictandXts()
     return(as.character(#list(
 #      str(beer) 
-      xtsible(get(input$dataset))
+      xtsible(test.ts),
+      str(test.ts),
+      str(xts)
 #      str(beer.xts)
 #      ,str(preloadedXts()),
 #      ,str(xts)
