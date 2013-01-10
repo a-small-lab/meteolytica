@@ -8,40 +8,11 @@ library(xts)         # Support for eXtensible Time Series structures
 library(forecast)    # Automated forecasting analytics
 library(fpp)         # Example datasets
 
-beer <- ausbeer
-
-
-# Initialize value to assure forecast is computed at program start-up
-
-
-# ProjectID <- c("(Name of user)",
-#                "Load",
-#                "NYC-temp+load-hourly-feb2005--may2008.csv",
-#                "Forecasting electric power load in New York City"
-#                )
-# 
-# UserName <-          ProjectID[1]
-# ProjectName <-       ProjectID[2]
-# UserDataCSVFile <-   ProjectID[3]
-# projectTitle <-      ProjectID[4]
-
-# Retrieve and transform user's outcomes data -----------------------------------
-
-#  Identify files containing the load data.
-# PathFromRoot <- c("/Users/arthursmalliii/Documents/Google\ Drive/meteolytica")
-# UserDataDirectory <- paste("Data/Outcomes",ProjectName, sep="/")
-# outcomesDataCSVFile <- paste(PathFromRoot,UserDataDirectory,UserDataCSVFile,sep="/")
-#outcomesDataCSVFile <- UserDataCSVFile
-
-#  Read user's outcomes data from file, creating a data frame
-#NYC.temp.load <- read.table(outcomesDataCSVFile, header = TRUE, sep = ",")
-
-#  cleanDf() is a utility that cleans data uploaded by user
-source("cleanDf.R")    
-
 
 # Package prepared examples as xts objects
-taylor.xts <- as.xts(taylor, dateFormat="POSIXct")
+dts.taylor <- seq(from=ISOdate(2005,6,5), by='30 min', length.out=NROW(taylor))
+taylor.zoo <- zoo(taylor, order.by=dts.taylor)
+taylor.xts <- xts(taylor.zoo, dts.taylor)
 xtsAttributes(taylor.xts) <- list(
   title="Electricity consumption in England and Wales", 
   predictandName="Load",
@@ -49,6 +20,8 @@ xtsAttributes(taylor.xts) <- list(
   location="United Kingdom"
 )
 
+
+beer <- ausbeer
 beer.xts <- as.xts(beer, dateFormat="POSIXct")
 
 xtsAttributes(beer.xts) <- list(
@@ -66,29 +39,42 @@ xtsAttributes(a10.xts) <- list(
   location="Australia"
   )
 
-# A function for generating artificial time series with known periodicities.
-# Default parameters chosen to make series look kinda like NYC load series.
-fakeLoadTs <- function(mean=5000,fday=24, fweek=7*fday, fyr=365*fday, f=fyr,aday=1000,aweek=1500,ayear=2000,anoise=500,numyears=2, startYr=2005,startDay=1,seed=123,useSetSeed=FALSE){
+# A function for generating artificial xts time series object with known 
+# periodicities. Defaults make series look kinda like NYC load series.
+# Variant of above that returns an xts object
+fakeLoadXts <- function(
+    mean=5000,
+    fday=24, fweek=7*fday, fyr=365*fday, f=fyr,
+    aday=1000,aweek=1500,ayear=2000,anoise=500,
+    start=ISOdate(2005,1,1),numyears=2, 
+    seed=123,useSetSeed=FALSE){
+  
   t <- as.vector(1:(fyr*numyears)) 
-  xday <-  ts(sin(2*pi*t/fday),  start=c(startYr,startDay), frequency=f)  
-  xweek <- ts(sin(2*pi*t/fweek), start=c(startYr,startDay), frequency=f)
-  xyr <-   ts(sin(2*pi*t/fyr),   start=c(startYr,startDay), frequency=f)
+  xday <-  (sin(2*pi*t/fday))
+  xweek <- (sin(2*pi*t/fweek))
+  xyr <-   (sin(2*pi*t/fyr))
   if(useSetSeed==TRUE) set.seed(seed)
-  noise <- anoise*rnorm(t) 
-  x <- mean + ayr*xyr + aweek*xweek + aday*xday + noise
-  return(x)
+  x <- mean + ayr*xyr + aweek*xweek + aday*xday + anoise*rnorm(t)
+  dts <- seq(from=start, by='hour', length.out=NROW(t))
+  out.xts <- xts(x, order.by=dts) 
+  xtsAttributes(out.xts) <- list(
+    frequency=f,
+    seasonal.periods=c(fday,fweek,fyr)
+  )
+  return(out.xts)
 }
 
 
 # Create artificial ts and xts objects for use in testing and debugging
-test.ts <- fakeLoadTs(useSetSeed=TRUE)
-test.xts <- as.xts(test.ts, dateFormat="POSIXct")
+test.xts <- fakeLoadXts(useSetSeed=FALSE)
 xtsAttributes(test.xts) <- list(
-  title="Widget sales", 
+  title="Test series", 
   predictandName="Widget sales", 
   units="USD, thousands", 
   location="Isla Incognita, PA"
   )
+
+str(test.xts)
 
 # 
 # # An (mostly) empty xts will come in handy to prevent showing error messages
@@ -107,11 +93,12 @@ shinyServer(function(input, output) {
 
   # Convert user's uploaded file into an xts (eXtensible Time Series) object
   uploadedXts <- reactive(function(){
-    df <- read.csv(input$uploadedFile$name, header=TRUE)
+    df <- read.csv(as.character(input$uploadedFile[1]), header=TRUE)
     DateHour <- paste(as.character(df$Date),as.character(df$Hour))
     dateTime <- as.POSIXct(DateHour,format='%m/%d/%Y %H')
+    # Identify which column has the predictand.
     predictandCol <- 4   # (plan to make this depend on user's choice)
-    Xts <- as.xts(df[ ,predictandCol], order.by=dateTime, unique=TRUE, tzone="GMT")
+    Xts <- xts(df[ ,predictandCol], order.by=dateTime, unique=TRUE, tzone="GMT")
     #  # Need hear: fcn() to establish time series frequency
     #  Replace missing values using the spline() procedure
     #    (May add later: NA's generate a warning message)
@@ -122,42 +109,37 @@ shinyServer(function(input, output) {
     return(Xts)
   })
   
+  # [Output testing function] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  output$testOutput <- reactivePrint(function(){
+    xts <- uploadedXts()
+    return(as.character(#list(
+      str(Xts)
+    ))#)
+  })
+  ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
   preloadedXts <- reactive(function(){
-    xts <- as.xts(get(input$dataset))
+    xts <- get(paste0(input$dataset,".xts"))
     return(xts)
   })
     
   # Choose which data series to identify as the predictand, based on user's selections
   predictandXts <- reactive(function(){
-    if(input$upload==FALSE){
-      preloaded.xts <- get(paste0(input$dataset,".xts"))
-      return(preloaded.xts)
-    }
-    if(is.null(input$file)) return(test.xts)
+    if(input$upload==FALSE) 
+      return(get(paste0(input$dataset,".xts")))
+    if(is.null(input$uploadedFile)) 
+      return(test.xts)
     # otherwise...
     return(uploadedXts())
   })
   
-  # [Output testing function] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  output$testOutput <- reactivePrint(function(){
-    xts <- predictandXts()
-    return(as.character(#list(
-#      str(beer) 
-      xtsible(test.ts),
-      str(test.ts),
-      str(xts)
-#      str(beer.xts)
-#      ,str(preloadedXts()),
-#      ,str(xts)
-    ))#)
-  })
-  ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
 # > Generate plots and reports describing predictand history -------------------
   
   # Create plot of historical outcomes data
   output$predictandHistoryTsPlot <- reactivePlot(function(){
-    plot(predictandXts())
+    xts <- predictandXts()
+    plot(xts)
   })
 
 #   #  Print out a summary description of the time series
