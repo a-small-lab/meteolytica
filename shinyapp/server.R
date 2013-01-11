@@ -123,23 +123,11 @@ shinyServer(function(input, output) {
     return(Xts)
   })
   
-  # [Output testing function] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  output$testOutput <- reactivePrint(function(){
-    Xts <- uploadedXts()
-    return(as.character(#list(
-      str(Xts)
-    ))#)
-  })
-  ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-  preloadedXts <- reactive(function(){
-    xts <- get(paste0(input$dataset,".xts"))
-    return(xts)
-  })
-    
-  # Choose which data series to identify as the predictand, based on user's selections
+  # Choose which data series to identify as the predictand, 
+  #   based on user's selections
   predictandXts <- reactive(function(){
     if(input$upload==FALSE) 
+      # Load the selected prepared dataset
       return(get(paste0(input$dataset,".xts")))
     if(is.null(input$uploadedFile)) 
       return(test.xts)
@@ -176,12 +164,21 @@ shinyServer(function(input, output) {
   #  and generate a plot of a decomposed time series
   predictandHistoryStl <- reactive(function(){
     # NEEDED HERE: test whether predictand ts is periodic, & only apply stl() if true
-    return(stl(get(input$dataset), s.window='periodic'))
+    return(stl(as.ts(predictandXts()), s.window='periodic'))
        })
 
   output$predictandHistoryStlPlot <- reactivePlot(function(){  
             return(plot(predictandHistoryStl()))          
        })
+
+  ######### [Output testing function] %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  output$testOutput <- reactivePrint(function(){
+    xts <- predictandXts()
+    return(as.character(#list(
+      str(xts)
+    ))#)
+  })
+  ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   
 
 # FORECASTING MODEL: Generate model and reports  -----------------------------------------

@@ -8,6 +8,6 @@ runApp("shinyapp")
 #  R -e "shiny::runApp('~/shinyapp')"
 
 # To use features in the development version of shiny:
-# install.package("devtools")  # if necessary
+install.package("devtools")  # if necessary
 devtools::install_github("shiny", "rstudio")
 devtools::install_github("shiny-incubator", "rstudio")
